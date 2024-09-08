@@ -23,7 +23,12 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    message = TextSendMessage(text=event.message.text)
+    if event.message.text == "哈囉":
+        reply_text = "你好嗎？"
+    else:
+        reply_text = event.message.text
+    
+    message = TextSendMessage(text=reply_text)
     line_bot_api.reply_message(event.reply_token, message)
 
 import os
