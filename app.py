@@ -41,15 +41,14 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    user_message = event.message.text
+    user_message = event.message.text.strip()
     
     if '|' in user_message:
-        # 分割訊息
+        # 分割訊息並儲存到資料庫
         call, response = user_message.split('|', 1)
         call = call.strip()
         response = response.strip()
         
-        # 儲存到資料庫
         try:
             conn = get_connection()
             cur = conn.cursor()
@@ -62,14 +61,29 @@ def handle_message(event):
             print(f"資料庫錯誤: {e}")
             reply_text = "儲存失敗，請稍後再試。"
     else:
-        # 原有的邏輯
-        if user_message == "哈囉":
-            reply_text = "你好嗎？"
-        elif "天氣" in user_message:
-            city = "台北"  # 預設城市，您可以根據需要修改
-            reply_text = get_weather(city)
-        else:
-            reply_text = user_message
+        # 查詢資料庫是否有匹配的呼叫
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute("SELECT response FROM callmemory WHERE call = %s", (user_message,))
+            result = cur.fetchone()
+            cur.close()
+            conn.close()
+            
+            if result:
+                reply_text = result[0]
+            else:
+                # 如果沒有匹配的呼叫，使用原有的邏輯
+                if user_message == "哈囉":
+                    reply_text = "你好嗎？"
+                elif "天氣" in user_message:
+                    city = "台北"  # 預設城市，您可以根據需要修改
+                    reply_text = get_weather(city)
+                else:
+                    reply_text = user_message
+        except Exception as e:
+            print(f"資料庫查詢錯誤: {e}")
+            reply_text = "查詢失敗，請稍後再試。"
     
     message = TextSendMessage(text=reply_text)
     line_bot_api.reply_message(event.reply_token, message)
