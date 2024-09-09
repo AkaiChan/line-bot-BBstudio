@@ -28,6 +28,57 @@ def get_weather(city):
     else:
         return "抱歉，無法獲取天氣資訊。"
 
+def create_bubble(header_text, body_text, footer_text, button_label, button_url):
+    return {
+        "type": "bubble",
+        "header": {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+                {
+                    "type": "text",
+                    "text": header_text
+                }
+            ]
+        },
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+                {
+                    "type": "text",
+                    "text": body_text,
+                    "wrap": True
+                }
+            ]
+        },
+        "footer": {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+                {
+                    "type": "text",
+                    "text": footer_text
+                },
+                {
+                    "type": "button",
+                    "style": "primary",
+                    "action": {
+                        "type": "uri",
+                        "label": button_label,
+                        "uri": button_url
+                    }
+                }
+            ]
+        }
+    }
+
+def create_carousel(bubbles):
+    return {
+        "type": "carousel",
+        "contents": bubbles
+    }
+
 @app.route("/callback", methods=['POST'])
 def callback():
     signature = request.headers['X-Line-Signature']
@@ -79,6 +130,30 @@ def handle_message(event):
                 elif "天氣" in user_message:
                     city = "台北"  # 預設城市，您可以根據需要修改
                     reply_text = get_weather(city)
+                elif user_message == "flexmessage":
+                    # 創建多個氣泡
+                    bubble1 = create_bubble(
+                        "氣泡1標題",
+                        "這是第一個氣泡的內容。您可以在這裡放置更多文字。",
+                        "底部文字1",
+                        "按鈕1",
+                        "https://line.me"
+                    )
+                    bubble2 = create_bubble(
+                        "氣泡2標題",
+                        "這是第二個氣泡的內容。可以包含不同的信息。",
+                        "底部文字2",
+                        "按鈕2",
+                        "https://line.me"
+                    )
+                    
+                    # 創建輪播訊息
+                    carousel = create_carousel([bubble1, bubble2])
+                    
+                    # 發送Flex Message
+                    flex_message = FlexSendMessage(alt_text="Flex Message範例", contents=carousel)
+                    line_bot_api.reply_message(event.reply_token, flex_message)
+                    return  # 提前返回，避免後續的回覆邏輯
                 else:
                     reply_text = user_message
         except Exception as e:
