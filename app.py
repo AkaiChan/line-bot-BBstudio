@@ -28,48 +28,80 @@ def get_weather(city):
     else:
         return "抱歉，無法獲取天氣資訊。"
 
-def create_bubble(header_text, body_text, footer_text, button_label, button_url):
+def create_bubble(status, percentage, task, color):
     return {
         "type": "bubble",
+        "size": "nano",
         "header": {
             "type": "box",
             "layout": "vertical",
             "contents": [
                 {
                     "type": "text",
-                    "text": header_text
+                    "text": status,
+                    "color": "#ffffff",
+                    "align": "start",
+                    "size": "md",
+                    "gravity": "center"
+                },
+                {
+                    "type": "text",
+                    "text": f"{percentage}%",
+                    "color": "#ffffff",
+                    "align": "start",
+                    "size": "xs",
+                    "gravity": "center",
+                    "margin": "lg"
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [{"type": "filler"}],
+                            "width": f"{percentage}%",
+                            "backgroundColor": color["bar"],
+                            "height": "6px"
+                        }
+                    ],
+                    "backgroundColor": "#9FD8E36E",
+                    "height": "6px",
+                    "margin": "sm"
                 }
-            ]
+            ],
+            "backgroundColor": color["background"],
+            "paddingTop": "19px",
+            "paddingAll": "12px",
+            "paddingBottom": "16px"
         },
         "body": {
             "type": "box",
             "layout": "vertical",
             "contents": [
                 {
-                    "type": "text",
-                    "text": body_text,
-                    "wrap": True
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": task,
+                            "color": "#8C8C8C",
+                            "size": "sm",
+                            "wrap": True
+                        }
+                    ],
+                    "flex": 1
                 }
-            ]
+            ],
+            "spacing": "md",
+            "paddingAll": "12px"
         },
-        "footer": {
-            "type": "box",
-            "layout": "vertical",
-            "contents": [
-                {
-                    "type": "text",
-                    "text": footer_text
-                },
-                {
-                    "type": "button",
-                    "style": "primary",
-                    "action": {
-                        "type": "uri",
-                        "label": button_label,
-                        "uri": button_url
-                    }
-                }
-            ]
+        "styles": {
+            "footer": {
+                "separator": False
+            }
         }
     }
 
@@ -131,29 +163,15 @@ def handle_message(event):
                     city = "台北"  # 預設城市，您可以根據需要修改
                     reply_text = get_weather(city)
                 elif user_message == "flexmessage":
-                    # 創建多個氣泡
-                    bubble1 = create_bubble(
-                        "氣泡1標題",
-                        "這是第一個氣泡的內容。您可以在這裡放置更多文字。",
-                        "底部文字1",
-                        "按鈕1",
-                        "https://line.me"
-                    )
-                    bubble2 = create_bubble(
-                        "氣泡2標題",
-                        "這是第二個氣泡的內容。可以包含不同的信息。",
-                        "底部文字2",
-                        "按鈕2",
-                        "https://line.me"
-                    )
+                    bubble1 = create_bubble("In Progress", 70, "Buy milk and lettuce before class", {"background": "#27ACB2", "bar": "#0D8186"})
+                    bubble2 = create_bubble("Pending", 30, "Wash my car", {"background": "#FF6B6E", "bar": "#DE5658"})
+                    bubble3 = create_bubble("In Progress", 100, "Buy milk and lettuce before class", {"background": "#A17DF5", "bar": "#7D51E4"})
                     
-                    # 創建輪播訊息
-                    carousel = create_carousel([bubble1, bubble2])
+                    carousel = create_carousel([bubble1, bubble2, bubble3])
                     
-                    # 發送Flex Message
-                    flex_message = FlexSendMessage(alt_text="Flex Message範例", contents=carousel)
+                    flex_message = FlexSendMessage(alt_text="Task Progress", contents=carousel)
                     line_bot_api.reply_message(event.reply_token, flex_message)
-                    return  # 提前返回，避免後續的回覆邏輯
+                    return
                 else:
                     reply_text = user_message
         except Exception as e:
