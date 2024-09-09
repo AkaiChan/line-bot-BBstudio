@@ -13,7 +13,7 @@ handler = WebhookHandler(os.environ['CHANNEL_SECRET'])
 OPENWEATHER_API_KEY = WebhookHandler(os.environ['OPENWEATHER_API_KEY'])  # 請確保設置這個環境變數
 
 def get_weather(city):
-    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid=822a68312e2d83f3a08224079cb36446&units=metric&lang=zh_tw"
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid=96132bacd820a723ed006ad2e8c94898&units=metric&lang=zh_tw"
     response = requests.get(url)
     data = response.json()
     if response.status_code == 200:
