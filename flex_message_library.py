@@ -469,3 +469,145 @@ def create_transit_step(from_step, to_step):
         "spacing": "lg",
         "height": "64px"
     }
+
+def create_receipt_flex_message(store_name, address, items, total, cash, change, payment_id):
+    return {
+        "type": "bubble",
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+                {
+                    "type": "text",
+                    "text": "RECEIPT",
+                    "weight": "bold",
+                    "color": "#1DB446",
+                    "size": "sm"
+                },
+                {
+                    "type": "text",
+                    "text": store_name,
+                    "weight": "bold",
+                    "size": "xxl",
+                    "margin": "md"
+                },
+                {
+                    "type": "text",
+                    "text": address,
+                    "size": "xs",
+                    "color": "#aaaaaa",
+                    "wrap": True
+                },
+                {
+                    "type": "separator",
+                    "margin": "xxl"
+                },
+                create_item_list(items),
+                {
+                    "type": "separator",
+                    "margin": "xxl"
+                },
+                create_summary(len(items), total, cash, change),
+                {
+                    "type": "separator",
+                    "margin": "xxl"
+                },
+                create_payment_info(payment_id)
+            ]
+        },
+        "styles": {
+            "footer": {
+                "separator": True
+            }
+        }
+    }
+
+def create_item_list(items):
+    contents = [create_item_box(item["name"], item["price"]) for item in items]
+    return {
+        "type": "box",
+        "layout": "vertical",
+        "margin": "xxl",
+        "spacing": "sm",
+        "contents": contents
+    }
+
+def create_item_box(name, price):
+    return {
+        "type": "box",
+        "layout": "horizontal",
+        "contents": [
+            {
+                "type": "text",
+                "text": name,
+                "size": "sm",
+                "color": "#555555",
+                "flex": 0
+            },
+            {
+                "type": "text",
+                "text": f"${price:.2f}",
+                "size": "sm",
+                "color": "#111111",
+                "align": "end"
+            }
+        ]
+    }
+
+def create_summary(item_count, total, cash, change):
+    return {
+        "type": "box",
+        "layout": "vertical",
+        "margin": "xxl",
+        "spacing": "sm",
+        "contents": [
+            create_summary_row("ITEMS", str(item_count)),
+            create_summary_row("TOTAL", f"${total:.2f}"),
+            create_summary_row("CASH", f"${cash:.2f}"),
+            create_summary_row("CHANGE", f"${change:.2f}")
+        ]
+    }
+
+def create_summary_row(label, value):
+    return {
+        "type": "box",
+        "layout": "horizontal",
+        "contents": [
+            {
+                "type": "text",
+                "text": label,
+                "size": "sm",
+                "color": "#555555"
+            },
+            {
+                "type": "text",
+                "text": value,
+                "size": "sm",
+                "color": "#111111",
+                "align": "end"
+            }
+        ]
+    }
+
+def create_payment_info(payment_id):
+    return {
+        "type": "box",
+        "layout": "horizontal",
+        "margin": "md",
+        "contents": [
+            {
+                "type": "text",
+                "text": "PAYMENT ID",
+                "size": "xs",
+                "color": "#aaaaaa",
+                "flex": 0
+            },
+            {
+                "type": "text",
+                "text": payment_id,
+                "color": "#aaaaaa",
+                "size": "xs",
+                "align": "end"
+            }
+        ]
+    }

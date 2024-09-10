@@ -5,7 +5,7 @@ from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage, FlexSendMessage
-from flex_message_library import create_bubble, create_carousel, create_shopping_list_flex_message, create_ticket_flex_message, create_transit_flex_message
+from flex_message_library import create_bubble, create_carousel, create_receipt_flex_message, create_shopping_list_flex_message, create_ticket_flex_message, create_transit_flex_message
 import os
 
 app = Flask(__name__)
@@ -133,6 +133,28 @@ def handle_message(event):
                         route=route
                     )
                     flex_message = FlexSendMessage(alt_text="Transit Route", contents=transit_flex)
+                    line_bot_api.reply_message(event.reply_token, flex_message)
+                    return
+                elif user_message == "receipt":
+                    items = [
+                        {"name": "Energy Drink", "price": 2.99},
+                        {"name": "Chewing Gum", "price": 0.99},
+                        {"name": "Bottled Water", "price": 3.33}
+                    ]
+                    total = sum(item["price"] for item in items)
+                    cash = 8.0
+                    change = cash - total
+
+                    receipt_flex = create_receipt_flex_message(
+                        store_name="Brown Store",
+                        address="Flex Tower, 7-7-4 Midori-ku, Tokyo",
+                        items=items,
+                        total=total,
+                        cash=cash,
+                        change=change,
+                        payment_id="#743289384279"
+                    )
+                    flex_message = FlexSendMessage(alt_text="Receipt", contents=receipt_flex)
                     line_bot_api.reply_message(event.reply_token, flex_message)
                     return
                 else:
