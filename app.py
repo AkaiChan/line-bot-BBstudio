@@ -5,6 +5,7 @@ from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage, FlexSendMessage
+from flex_message_library import create_ticket_flex_message
 import os
 
 app = Flask(__name__)
@@ -27,90 +28,6 @@ def get_weather(city):
         return f"{city}的天氣：{weather_description}，溫度：{temperature}°C"
     else:
         return "抱歉，無法獲取天氣資訊。"
-
-def create_bubble(status, percentage, task, color):
-    return {
-        "type": "bubble",
-        "size": "nano",
-        "header": {
-            "type": "box",
-            "layout": "vertical",
-            "contents": [
-                {
-                    "type": "text",
-                    "text": status,
-                    "color": "#ffffff",
-                    "align": "start",
-                    "size": "md",
-                    "gravity": "center"
-                },
-                {
-                    "type": "text",
-                    "text": f"{percentage}%",
-                    "color": "#ffffff",
-                    "align": "start",
-                    "size": "xs",
-                    "gravity": "center",
-                    "margin": "lg"
-                },
-                {
-                    "type": "box",
-                    "layout": "vertical",
-                    "contents": [
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "contents": [{"type": "filler"}],
-                            "width": f"{percentage}%",
-                            "backgroundColor": color["bar"],
-                            "height": "6px"
-                        }
-                    ],
-                    "backgroundColor": "#9FD8E36E",
-                    "height": "6px",
-                    "margin": "sm"
-                }
-            ],
-            "backgroundColor": color["background"],
-            "paddingTop": "19px",
-            "paddingAll": "12px",
-            "paddingBottom": "16px"
-        },
-        "body": {
-            "type": "box",
-            "layout": "vertical",
-            "contents": [
-                {
-                    "type": "box",
-                    "layout": "horizontal",
-                    "contents": [
-                        {
-                            "type": "text",
-                            "text": task,
-                            "color": "#8C8C8C",
-                            "size": "sm",
-                            "wrap": True
-                        }
-                    ],
-                    "flex": 1
-                }
-            ],
-            "spacing": "md",
-            "paddingAll": "12px"
-        },
-        "styles": {
-            "footer": {
-                "separator": False
-            }
-        }
-    }
-
-def create_carousel(bubbles):
-    return {
-        "type": "carousel",
-        "contents": bubbles
-    }
-
 @app.route("/callback", methods=['POST'])
 def callback():
     signature = request.headers['X-Line-Signature']
@@ -170,6 +87,19 @@ def handle_message(event):
                     carousel = create_carousel([bubble1, bubble2, bubble3])
                     
                     flex_message = FlexSendMessage(alt_text="Task Progress", contents=carousel)
+                    line_bot_api.reply_message(event.reply_token, flex_message)
+                    return
+                elif user_message == "ticket":
+                    ticket_flex = create_ticket_flex_message(
+                        title="BROWN'S ADVENTURE\nIN MOVIE",
+                        rating="4.0",
+                        date="Monday 25, 9:00PM",
+                        place="7 Floor, No.3",
+                        seats="C Row, 18 Seat",
+                        image_url="https://developers-resource.landpress.line.me/fx/img/01_3_movie.png",
+                        qr_code_url="https://developers-resource.landpress.line.me/fx/img/linecorp_code_withborder.png"
+                    )
+                    flex_message = FlexSendMessage(alt_text="Movie Ticket", contents=ticket_flex)
                     line_bot_api.reply_message(event.reply_token, flex_message)
                     return
                 else:
