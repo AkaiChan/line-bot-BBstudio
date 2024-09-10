@@ -5,7 +5,7 @@ from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage, FlexSendMessage
-from flex_message_library import create_bubble, create_carousel, create_ticket_flex_message
+from flex_message_library import create_bubble, create_carousel, create_shopping_list_flex_message, create_ticket_flex_message
 import os
 
 app = Flask(__name__)
@@ -100,6 +100,24 @@ def handle_message(event):
                         qr_code_url="https://developers-resource.landpress.line.me/fx/img/linecorp_code_withborder.png"
                     )
                     flex_message = FlexSendMessage(alt_text="Movie Ticket", contents=ticket_flex)
+                    line_bot_api.reply_message(event.reply_token, flex_message)
+                    return
+                elif user_message == "shopping":
+                    items = [
+                        {
+                            "name": "Arm Chair, White",
+                            "price": 49.99,
+                            "image_url": "https://developers-resource.landpress.line.me/fx/img/01_5_carousel.png"
+                        },
+                        {
+                            "name": "Metal Desk Lamp",
+                            "price": 11.99,
+                            "image_url": "https://developers-resource.landpress.line.me/fx/img/01_6_carousel.png",
+                            "out_of_stock": True
+                        }
+                    ]
+                    shopping_flex = create_shopping_list_flex_message(items)
+                    flex_message = FlexSendMessage(alt_text="Shopping List", contents=shopping_flex)
                     line_bot_api.reply_message(event.reply_token, flex_message)
                     return
                 else:
