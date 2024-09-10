@@ -310,3 +310,162 @@ def create_see_more_bubble():
             ]
         }
     }
+
+def create_transit_flex_message(from_station, to_station, total_time, route):
+    return {
+        "type": "bubble",
+        "size": "mega",
+        "header": create_header(from_station, to_station),
+        "body": create_body(total_time, route)
+    }
+
+def create_header(from_station, to_station):
+    return {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+            create_station_box("FROM", from_station),
+            create_station_box("TO", to_station)
+        ],
+        "paddingAll": "20px",
+        "backgroundColor": "#0367D3",
+        "spacing": "md",
+        "height": "154px",
+        "paddingTop": "22px"
+    }
+
+def create_station_box(label, station):
+    return {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+            {
+                "type": "text",
+                "text": label,
+                "color": "#ffffff66",
+                "size": "sm"
+            },
+            {
+                "type": "text",
+                "text": station,
+                "color": "#ffffff",
+                "size": "xl",
+                "flex": 4,
+                "weight": "bold"
+            }
+        ]
+    }
+
+def create_body(total_time, route):
+    contents = [
+        {
+            "type": "text",
+            "text": f"Total: {total_time}",
+            "color": "#b7b7b7",
+            "size": "xs"
+        }
+    ]
+    for i, step in enumerate(route):
+        contents.append(create_station_step(step))
+        if i < len(route) - 1:
+            contents.append(create_transit_step(route[i], route[i+1]))
+    
+    return {
+        "type": "box",
+        "layout": "vertical",
+        "contents": contents
+    }
+
+def create_station_step(step):
+    return {
+        "type": "box",
+        "layout": "horizontal",
+        "contents": [
+            {
+                "type": "text",
+                "text": step["time"],
+                "size": "sm",
+                "gravity": "center"
+            },
+            {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "filler"
+                    },
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": [],
+                        "cornerRadius": "30px",
+                        "height": "12px",
+                        "width": "12px",
+                        "borderColor": step["color"],
+                        "borderWidth": "2px"
+                    },
+                    {
+                        "type": "filler"
+                    }
+                ],
+                "flex": 0
+            },
+            {
+                "type": "text",
+                "text": step["station"],
+                "gravity": "center",
+                "flex": 4,
+                "size": "sm"
+            }
+        ],
+        "spacing": "lg",
+        "cornerRadius": "30px",
+        "margin": "xl"
+    }
+
+def create_transit_step(from_step, to_step):
+    return {
+        "type": "box",
+        "layout": "horizontal",
+        "contents": [
+            {
+                "type": "box",
+                "layout": "baseline",
+                "contents": [{"type": "filler"}],
+                "flex": 1
+            },
+            {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "contents": [
+                            {"type": "filler"},
+                            {
+                                "type": "box",
+                                "layout": "vertical",
+                                "contents": [],
+                                "width": "2px",
+                                "backgroundColor": to_step["color"]
+                            },
+                            {"type": "filler"}
+                        ],
+                        "flex": 1
+                    }
+                ],
+                "width": "12px"
+            },
+            {
+                "type": "text",
+                "text": from_step["transit"],
+                "gravity": "center",
+                "flex": 4,
+                "size": "xs",
+                "color": "#8c8c8c"
+            }
+        ],
+        "spacing": "lg",
+        "height": "64px"
+    }

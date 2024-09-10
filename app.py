@@ -5,7 +5,7 @@ from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage, FlexSendMessage
-from flex_message_library import create_bubble, create_carousel, create_shopping_list_flex_message, create_ticket_flex_message
+from flex_message_library import create_bubble, create_carousel, create_shopping_list_flex_message, create_ticket_flex_message, create_transit_flex_message
 import os
 
 app = Flask(__name__)
@@ -118,6 +118,21 @@ def handle_message(event):
                     ]
                     shopping_flex = create_shopping_list_flex_message(items)
                     flex_message = FlexSendMessage(alt_text="Shopping List", contents=shopping_flex)
+                    line_bot_api.reply_message(event.reply_token, flex_message)
+                    return
+                elif user_message == "transit":
+                    route = [
+                        {"time": "20:30", "station": "Akihabara", "color": "#EF454D", "transit": "Walk 4min"},
+                        {"time": "20:34", "station": "Ochanomizu", "color": "#6486E3", "transit": "Metro 1hr"},
+                        {"time": "20:40", "station": "Shinjuku", "color": "#6486E3", "transit": ""}
+                    ]
+                    transit_flex = create_transit_flex_message(
+                        from_station="Akihabara",
+                        to_station="Shinjuku",
+                        total_time="1 hour",
+                        route=route
+                    )
+                    flex_message = FlexSendMessage(alt_text="Transit Route", contents=transit_flex)
                     line_bot_api.reply_message(event.reply_token, flex_message)
                     return
                 else:
