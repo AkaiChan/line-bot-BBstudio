@@ -611,3 +611,195 @@ def create_payment_info(payment_id):
             }
         ]
     }
+
+def create_stock_flex_message(stock_info):
+    # 解析股票資訊
+    lines = stock_info.split('\n')
+    stock_code = lines[0].split(' ')[1]
+    date = lines[1].split('：')[1]
+    current_price = lines[2].split('：')[1].split(' ')[0]
+    change = lines[3].split('：')[1]
+    open_price = lines[4].split('：')[1].split(' ')[0]
+    high_price = lines[5].split('：')[1].split(' ')[0]
+    low_price = lines[6].split('：')[1].split(' ')[0]
+    volume = lines[7].split('：')[1].split(' ')[0]
+    prev_close = lines[8].split('：')[1].split(' ')[0]
+
+    # 判斷漲跌顏色
+    color = "#FF0000" if float(change.split(' ')[0]) >= 0 else "#00FF00"
+
+    return {
+        "type": "bubble",
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+                {
+                    "type": "text",
+                    "text": f"股票代碼 {stock_code}",
+                    "weight": "bold",
+                    "size": "xl",
+                    "color": "#1DB446"
+                },
+                {
+                    "type": "text",
+                    "text": date,
+                    "size": "sm",
+                    "color": "#aaaaaa",
+                    "wrap": True
+                },
+                {
+                    "type": "separator",
+                    "margin": "xxl"
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "margin": "xxl",
+                    "spacing": "sm",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "當前價格",
+                                    "size": "sm",
+                                    "color": "#555555",
+                                    "flex": 0
+                                },
+                                {
+                                    "type": "text",
+                                    "text": f"{current_price} 元",
+                                    "size": "sm",
+                                    "color": "#111111",
+                                    "align": "end"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "漲跌",
+                                    "size": "sm",
+                                    "color": "#555555",
+                                    "flex": 0
+                                },
+                                {
+                                    "type": "text",
+                                    "text": change,
+                                    "size": "sm",
+                                    "color": color,
+                                    "align": "end"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "開盤價",
+                                    "size": "sm",
+                                    "color": "#555555",
+                                    "flex": 0
+                                },
+                                {
+                                    "type": "text",
+                                    "text": f"{open_price} 元",
+                                    "size": "sm",
+                                    "color": "#111111",
+                                    "align": "end"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "最高價",
+                                    "size": "sm",
+                                    "color": "#555555",
+                                    "flex": 0
+                                },
+                                {
+                                    "type": "text",
+                                    "text": f"{high_price} 元",
+                                    "size": "sm",
+                                    "color": "#111111",
+                                    "align": "end"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "最低價",
+                                    "size": "sm",
+                                    "color": "#555555",
+                                    "flex": 0
+                                },
+                                {
+                                    "type": "text",
+                                    "text": f"{low_price} 元",
+                                    "size": "sm",
+                                    "color": "#111111",
+                                    "align": "end"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "成交量",
+                                    "size": "sm",
+                                    "color": "#555555",
+                                    "flex": 0
+                                },
+                                {
+                                    "type": "text",
+                                    "text": f"{volume} 股",
+                                    "size": "sm",
+                                    "color": "#111111",
+                                    "align": "end"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "前一日收盤價",
+                                    "size": "sm",
+                                    "color": "#555555",
+                                    "flex": 0
+                                },
+                                {
+                                    "type": "text",
+                                    "text": f"{prev_close} 元",
+                                    "size": "sm",
+                                    "color": "#111111",
+                                    "align": "end"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    }

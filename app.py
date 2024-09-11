@@ -5,7 +5,7 @@ from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage, FlexSendMessage
-from flex_message_library import create_bubble, create_carousel, create_receipt_flex_message, create_shopping_list_flex_message, create_ticket_flex_message, create_transit_flex_message
+from flex_message_library import create_bubble, create_carousel, create_receipt_flex_message, create_shopping_list_flex_message, create_stock_flex_message, create_ticket_flex_message, create_transit_flex_message
 from stock_api import get_stock_info  
 import os
 
@@ -163,7 +163,11 @@ def handle_message(event):
                         # 假設用戶發送的消息格式是 "股票 2330"
                         stock_code = user_message.split()[1]
                         stock_info = get_stock_info(stock_code)
-                        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=stock_info))
+                        flex_message = create_stock_flex_message(stock_info)
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            FlexSendMessage(alt_text=f"股票 {stock_code} 資訊", contents=flex_message)
+                        )
                     except IndexError:
                         line_bot_api.reply_message(event.reply_token, TextSendMessage(text="請輸入正確的股票代碼，例如：股票 2330"))
                     except Exception as e:
