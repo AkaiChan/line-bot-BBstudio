@@ -7,16 +7,19 @@ def get_stock_info(stock_code):
     
     try:
         response = requests.get(base_url + endpoint)
-        response.raise_for_status()  # 如果狀態碼不是 200，會拋出異常
         
-        # 打印原始回應內容以進行調試
-        print(f"API Response: {response.text}")
+        # 打印狀態碼和原始回應內容
+        print(f"Status Code: {response.status_code}")
+        print(f"Response Content: {response.text}")
+        print(f"Response Headers: {response.headers}")
+        
+        response.raise_for_status()  # 如果狀態碼不是 200，會拋出異常
         
         # 嘗試解析 JSON
         try:
             stock_data = response.json()
         except json.JSONDecodeError as json_error:
-            return f"API 返回的數據不是有效的 JSON 格式。錯誤：{str(json_error)}"
+            return f"API 返回的數據不是有效的 JSON 格式。錯誤：{str(json_error)}。原始回應：{response.text[:200]}"
         
         if stock_data:
             if isinstance(stock_data, list) and len(stock_data) > 0:
