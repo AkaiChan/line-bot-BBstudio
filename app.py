@@ -158,22 +158,21 @@ def handle_message(event):
                     flex_message = FlexSendMessage(alt_text="Receipt", contents=receipt_flex)
                     line_bot_api.reply_message(event.reply_token, flex_message)
                     return
-                elif user_message.startswith("股票"):
+                elif user_message.startswith("stock"):
                     try:
-                        # 假設用戶發送的消息格式是 "股票 2330"
                         stock_code = user_message.split()[1]
                         stock_info = get_stock_info(stock_code)
                         flex_message = create_stock_flex_message(stock_info)
                         line_bot_api.reply_message(
                             event.reply_token,
-                            FlexSendMessage(alt_text=f"股票 {stock_code} 資訊", contents=flex_message)
+                            FlexSendMessage(alt_text=f"Stock {stock_code} Info", contents=flex_message)
                         )
                     except IndexError:
-                        line_bot_api.reply_message(event.reply_token, TextSendMessage(text="請輸入正確的股票代碼，例如：股票 2330"))
+                        line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Please enter a valid stock code, e.g.: stock 2330"))
                     except Exception as e:
-                        error_message = f"處理股票資訊時發生錯誤：{str(e)}"
-                        print(error_message)  # 在伺服器日誌中打印錯誤
-                        line_bot_api.reply_message(event.reply_token, TextSendMessage(text="抱歉，無法獲取股票資訊。請稍後再試。"))
+                        error_message = f"Error processing stock information: {str(e)}"
+                        print(error_message)  # Print error in server log
+                        line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Sorry, unable to retrieve stock information. Please try again later."))
                 else:
                     reply_text = user_message
         except Exception as e:

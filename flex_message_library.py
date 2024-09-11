@@ -613,20 +613,32 @@ def create_payment_info(payment_id):
     }
 
 def create_stock_flex_message(stock_info):
-    # 解析股票資訊
+    # Parse stock information
     lines = stock_info.split('\n')
     stock_code = lines[0].split(' ')[1]
     date = lines[1].split('：')[1]
-    current_price = lines[2].split('：')[1].split(' ')[0]
-    change = lines[3].split('：')[1]
-    open_price = lines[4].split('：')[1].split(' ')[0]
-    high_price = lines[5].split('：')[1].split(' ')[0]
-    low_price = lines[6].split('：')[1].split(' ')[0]
-    volume = lines[7].split('：')[1].split(' ')[0]
-    prev_close = lines[8].split('：')[1].split(' ')[0]
+    
+    # Function to format numbers to two decimal places
+    def format_number(value):
+        try:
+            return f"{float(value):.2f}"
+        except ValueError:
+            return value
 
-    # 判斷漲跌顏色
-    color = "#FF0000" if float(change.split(' ')[0]) >= 0 else "#00FF00"
+    # Parse and format values
+    current_price = format_number(lines[2].split('：')[1].split(' ')[0])
+    change = lines[3].split('：')[1]
+    change_value, change_percent = change.split(' ')
+    change_value = format_number(change_value)
+    change_percent = change_percent.strip('()')
+    open_price = format_number(lines[4].split('：')[1].split(' ')[0])
+    high_price = format_number(lines[5].split('：')[1].split(' ')[0])
+    low_price = format_number(lines[6].split('：')[1].split(' ')[0])
+    volume = format_number(lines[7].split('：')[1].split(' ')[0])
+    prev_close = format_number(lines[8].split('：')[1].split(' ')[0])
+
+    # Determine color based on price change
+    color = "#FF0000" if float(change_value) >= 0 else "#00FF00"
 
     return {
         "type": "bubble",
@@ -636,7 +648,7 @@ def create_stock_flex_message(stock_info):
             "contents": [
                 {
                     "type": "text",
-                    "text": f"股票代碼 {stock_code}",
+                    "text": f"Stock Code {stock_code}",
                     "weight": "bold",
                     "size": "xl",
                     "color": "#1DB446"
@@ -664,14 +676,14 @@ def create_stock_flex_message(stock_info):
                             "contents": [
                                 {
                                     "type": "text",
-                                    "text": "當前價格",
+                                    "text": "Current Price",
                                     "size": "sm",
                                     "color": "#555555",
                                     "flex": 0
                                 },
                                 {
                                     "type": "text",
-                                    "text": f"{current_price} 元",
+                                    "text": f"${current_price}",
                                     "size": "sm",
                                     "color": "#111111",
                                     "align": "end"
@@ -684,14 +696,14 @@ def create_stock_flex_message(stock_info):
                             "contents": [
                                 {
                                     "type": "text",
-                                    "text": "漲跌",
+                                    "text": "Change",
                                     "size": "sm",
                                     "color": "#555555",
                                     "flex": 0
                                 },
                                 {
                                     "type": "text",
-                                    "text": change,
+                                    "text": f"${change_value} ({change_percent})",
                                     "size": "sm",
                                     "color": color,
                                     "align": "end"
@@ -704,14 +716,14 @@ def create_stock_flex_message(stock_info):
                             "contents": [
                                 {
                                     "type": "text",
-                                    "text": "開盤價",
+                                    "text": "Open",
                                     "size": "sm",
                                     "color": "#555555",
                                     "flex": 0
                                 },
                                 {
                                     "type": "text",
-                                    "text": f"{open_price} 元",
+                                    "text": f"${open_price}",
                                     "size": "sm",
                                     "color": "#111111",
                                     "align": "end"
@@ -724,14 +736,14 @@ def create_stock_flex_message(stock_info):
                             "contents": [
                                 {
                                     "type": "text",
-                                    "text": "最高價",
+                                    "text": "High",
                                     "size": "sm",
                                     "color": "#555555",
                                     "flex": 0
                                 },
                                 {
                                     "type": "text",
-                                    "text": f"{high_price} 元",
+                                    "text": f"${high_price}",
                                     "size": "sm",
                                     "color": "#111111",
                                     "align": "end"
@@ -744,14 +756,14 @@ def create_stock_flex_message(stock_info):
                             "contents": [
                                 {
                                     "type": "text",
-                                    "text": "最低價",
+                                    "text": "Low",
                                     "size": "sm",
                                     "color": "#555555",
                                     "flex": 0
                                 },
                                 {
                                     "type": "text",
-                                    "text": f"{low_price} 元",
+                                    "text": f"${low_price}",
                                     "size": "sm",
                                     "color": "#111111",
                                     "align": "end"
@@ -764,14 +776,14 @@ def create_stock_flex_message(stock_info):
                             "contents": [
                                 {
                                     "type": "text",
-                                    "text": "成交量",
+                                    "text": "Volume",
                                     "size": "sm",
                                     "color": "#555555",
                                     "flex": 0
                                 },
                                 {
                                     "type": "text",
-                                    "text": f"{volume} 股",
+                                    "text": f"{volume}",
                                     "size": "sm",
                                     "color": "#111111",
                                     "align": "end"
@@ -784,14 +796,14 @@ def create_stock_flex_message(stock_info):
                             "contents": [
                                 {
                                     "type": "text",
-                                    "text": "前一日收盤價",
+                                    "text": "Previous Close",
                                     "size": "sm",
                                     "color": "#555555",
                                     "flex": 0
                                 },
                                 {
                                     "type": "text",
-                                    "text": f"{prev_close} 元",
+                                    "text": f"${prev_close}",
                                     "size": "sm",
                                     "color": "#111111",
                                     "align": "end"
