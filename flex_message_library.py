@@ -613,6 +613,8 @@ def create_payment_info(payment_id):
     }
 
 def create_stock_flex_message(stock_info):
+    if not isinstance(stock_info, str):
+        raise ValueError("Stock info must be a string")
     lines = stock_info.split('\n')
     stock_code = lines[0].split(' ')[1]
     date = lines[1].split(': ')[1]

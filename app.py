@@ -160,23 +160,26 @@ def handle_message(event):
                     return
                 elif user_message.startswith("stock"):
                     try:
-                        # 使用正則表達式來提取股票代碼
                         import re
                         match = re.search(r'stock\s+(\w+)', user_message)
                         if match:
-                            stock_code = user_message.split(' ', 1)[1]
+                            stock_code = match.group(1)
                             stock_info = get_stock_info(stock_code)
-                            flex_message = create_stock_flex_message(stock_info)
-                            line_bot_api.reply_message(
-                                event.reply_token,
-                                FlexSendMessage(alt_text=f"Stock {stock_code} Info", contents=flex_message)
-                            )
+                            # 確保 stock_info 是一個字符串
+                            if isinstance(stock_info, str):
+                                flex_message = create_stock_flex_message(stock_info)
+                                line_bot_api.reply_message(
+                                    event.reply_token,
+                                    FlexSendMessage(alt_text=f"Stock {stock_code} Info", contents=flex_message)
+                                )
+                            else:
+                                raise ValueError("Stock info is not a string")
                         else:
-                            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Please enter a valid stock code, e.g.: stock 0056"))
+                            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="請輸入有效的股票代碼，例如：stock 0056"))
                     except Exception as e:
-                        error_message = f"Error processing stock information: {str(e)}"
+                        error_message = f"處理股票信息時發生錯誤: {str(e)}"
                         print(error_message)  # 在伺服器日誌中打印錯誤
-                        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"Sorry, an error occurred: {str(e)}"))
+                        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"抱歉，發生了錯誤：{str(e)}"))
                     return
                 else:
                     reply_text = user_message
