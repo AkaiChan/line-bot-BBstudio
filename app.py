@@ -164,8 +164,7 @@ def handle_message(event):
                         import re
                         match = re.search(r'stock\s+(\w+)', user_message)
                         if match:
-                            stock_code = match.group(1)
-                            print(f"Attempting to fetch info for stock code: {stock_code}")  # 調試信息
+                            stock_code = user_message.split(' ', 1)[1]
                             stock_info = get_stock_info(stock_code)
                             
                             if "Unable to retrieve information" in stock_info or "error" in stock_info.lower():
