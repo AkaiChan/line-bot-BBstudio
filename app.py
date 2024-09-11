@@ -182,6 +182,7 @@ def handle_message(event):
                         error_message = f"Error processing stock information: {str(e)}"
                         print(error_message)  # 在伺服器日誌中打印錯誤
                         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"Sorry, an error occurred: {str(e)}"))
+                    return
                 else:
                     reply_text = user_message
         except Exception as e:
