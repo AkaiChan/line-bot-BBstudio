@@ -3,7 +3,12 @@ import json
 from datetime import datetime
 
 def get_stock_info(stock_code):
-    symbol = f"{stock_code}.TW"
+    # 對於以 0 開頭的股票代碼，可能需要特殊處理
+    if stock_code.startswith('0'):
+        symbol = stock_code + ".TWO"  # 對於上櫃股票
+    else:
+        symbol = stock_code + ".TW"  # 對於上市股票
+    
     base_url = "https://query1.finance.yahoo.com/v8/finance/chart/"
     
     params = {

@@ -160,19 +160,28 @@ def handle_message(event):
                     return
                 elif user_message.startswith("stock"):
                     try:
-                        stock_code = user_message.split()[1]
-                        stock_info = get_stock_info(stock_code)
-                        flex_message = create_stock_flex_message(stock_info)
-                        line_bot_api.reply_message(
-                            event.reply_token,
-                            FlexSendMessage(alt_text=f"Stock {stock_code} Info", contents=flex_message)
-                        )
-                    except IndexError:
-                        line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Please enter a valid stock code, e.g.: stock 2330"))
+                        # 使用正則表達式來提取股票代碼
+                        import re
+                        match = re.search(r'stock\s+(\w+)', user_message)
+                        if match:
+                            stock_code = match.group(1)
+                            print(f"Attempting to fetch info for stock code: {stock_code}")  # 調試信息
+                            stock_info = get_stock_info(stock_code)
+                            
+                            if "Unable to retrieve information" in stock_info or "error" in stock_info.lower():
+                                line_bot_api.reply_message(event.reply_token, TextSendMessage(text=stock_info))
+                            else:
+                                flex_message = create_stock_flex_message(stock_info)
+                                line_bot_api.reply_message(
+                                    event.reply_token,
+                                    FlexSendMessage(alt_text=f"Stock {stock_code} Info", contents=flex_message)
+                                )
+                        else:
+                            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Please enter a valid stock code, e.g.: stock 0056"))
                     except Exception as e:
                         error_message = f"Error processing stock information: {str(e)}"
-                        print(error_message)  # Print error in server log
-                        line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Sorry, unable to retrieve stock information. Please try again later."))
+                        print(error_message)  # 在伺服器日誌中打印錯誤
+                        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"Sorry, an error occurred: {str(e)}"))
                 else:
                     reply_text = user_message
         except Exception as e:
