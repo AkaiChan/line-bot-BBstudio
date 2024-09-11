@@ -166,15 +166,11 @@ def handle_message(event):
                         if match:
                             stock_code = user_message.split(' ', 1)[1]
                             stock_info = get_stock_info(stock_code)
-                            
-                            if "Unable to retrieve information" in stock_info or "error" in stock_info.lower():
-                                line_bot_api.reply_message(event.reply_token, TextSendMessage(text=stock_info))
-                            else:
-                                flex_message = create_stock_flex_message(stock_info)
-                                line_bot_api.reply_message(
-                                    event.reply_token,
-                                    FlexSendMessage(alt_text=f"Stock {stock_code} Info", contents=flex_message)
-                                )
+                            flex_message = create_stock_flex_message(stock_info)
+                            line_bot_api.reply_message(
+                                event.reply_token,
+                                FlexSendMessage(alt_text=f"Stock {stock_code} Info", contents=flex_message)
+                            )
                         else:
                             line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Please enter a valid stock code, e.g.: stock 0056"))
                     except Exception as e:
