@@ -613,10 +613,9 @@ def create_payment_info(payment_id):
     }
 
 def create_stock_flex_message(stock_info):
-    # Parse stock information
     lines = stock_info.split('\n')
     stock_code = lines[0].split(' ')[1]
-    date = lines[1].split('：')[1]
+    date = lines[1].split(': ')[1]
     
     # Function to format numbers to two decimal places
     def format_number(value):
@@ -626,19 +625,20 @@ def create_stock_flex_message(stock_info):
             return value
 
     # Parse and format values
-    current_price = format_number(lines[2].split('：')[1].split(' ')[0])
-    change = lines[3].split('：')[1]
+    current_price = format_number(lines[2].split(': ')[1])
+    change = lines[3].split(': ')[1]
     change_value, change_percent = change.split(' ')
     change_value = format_number(change_value)
     change_percent = change_percent.strip('()')
-    open_price = format_number(lines[4].split('：')[1].split(' ')[0])
-    high_price = format_number(lines[5].split('：')[1].split(' ')[0])
-    low_price = format_number(lines[6].split('：')[1].split(' ')[0])
-    volume = format_number(lines[7].split('：')[1].split(' ')[0])
-    prev_close = format_number(lines[8].split('：')[1].split(' ')[0])
+    open_price = format_number(lines[4].split(': ')[1])
+    high_price = format_number(lines[5].split(': ')[1])
+    low_price = format_number(lines[6].split(': ')[1])
+    volume = format_number(lines[7].split(': ')[1])
+    prev_close = format_number(lines[8].split(': ')[1])
 
     # Determine color based on price change
-    color = "#FF0000" if float(change_value) >= 0 else "#00FF00"
+    color = "#FF0000" if change_value != 'N/A' and float(change_value) >= 0 else "#00FF00"
+
 
     return {
         "type": "bubble",

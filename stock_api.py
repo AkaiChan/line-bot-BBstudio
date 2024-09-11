@@ -33,8 +33,8 @@ def get_stock_info(stock_code):
         
         if 'chart' in data and 'result' in data['chart'] and data['chart']['result']:
             stock_data = data['chart']['result'][0]
-            meta = stock_data['meta']
-            quote = stock_data['indicators']['quote'][0]
+            meta = stock_data.get('meta', {})
+            quote = stock_data.get('indicators', {}).get('quote', [{}])[0]
             
             current_price = meta.get('regularMarketPrice', 'N/A')
             previous_close = meta.get('previousClose', meta.get('chartPreviousClose', 'N/A'))
@@ -50,11 +50,11 @@ def get_stock_info(stock_code):
                 f"Stock Code {stock_code} Information:\n"
                 f"Date: {datetime.fromtimestamp(meta.get('regularMarketTime', 0)).strftime('%Y-%m-%d %H:%M:%S')}\n"
                 f"Current Price: {current_price}\n"
-                f"Change: {change} ({change_percent:.2f}%)\n"
-                f"Open: {quote.get('open', ['N/A'])[-1]}\n"
-                f"High: {quote.get('high', ['N/A'])[-1]}\n"
-                f"Low: {quote.get('low', ['N/A'])[-1]}\n"
-                f"Volume: {quote.get('volume', ['N/A'])[-1]}\n"
+                f"Change: {change} ({change_percent:.2f}% if isinstance(change_percent, float) else 'N/A'})\n"
+                f"Open: {quote.get('open', ['N/A'])[-1] if quote.get('open') else 'N/A'}\n"
+                f"High: {quote.get('high', ['N/A'])[-1] if quote.get('high') else 'N/A'}\n"
+                f"Low: {quote.get('low', ['N/A'])[-1] if quote.get('low') else 'N/A'}\n"
+                f"Volume: {quote.get('volume', ['N/A'])[-1] if quote.get('volume') else 'N/A'}\n"
                 f"Previous Close: {previous_close}"
             )
             return stock_info
@@ -70,4 +70,5 @@ def get_stock_info(stock_code):
         return f"Error decoding API response: {str(json_error)}"
     except Exception as e:
         print(f"Unexpected error: {str(e)}")
-        return f"An unexpected error occurred: {str(e)}"
+        print(f"Error details: {type(e).__name__}, {str(e)}")
+        return f"An unexpected error occurred: {type(e).__name__}, {str(e)}"
