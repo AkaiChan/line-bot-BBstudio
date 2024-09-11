@@ -160,21 +160,18 @@ def handle_message(event):
                     return
                 elif user_message.startswith("stock"):
                     try:
-                        stock_code = user_message.split()[1]
-                        stock_info = get_stock_info(stock_code)
-                        
-                        if isinstance(stock_info, str):
-                            flex_message = create_stock_flex_message(stock_info)
-                            line_bot_api.reply_message(
-                                event.reply_token,
-                                FlexSendMessage(alt_text=f"Stock {stock_code} Info", contents=flex_message)
-                            )
+                        parts = user_message.split()
+                        if len(parts) < 2:
+                            reply_text = "請提供股票代碼，例如：stock 0050"
                         else:
-                            raise ValueError(f"無效的股票信息格式")
+                            stock_code = parts[1]
+                            stock_info = get_stock_info(stock_code)
+                            reply_text = stock_info
                     except Exception as e:
-                        error_message = f"處理股票信息時發生錯誤: {str(e)}"
-                        print(error_message)
-                        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"抱歉，發生了錯誤：{str(e)}"))
+                        print(f"處理股票信息時發生錯誤: {str(e)}")
+                        reply_text = f"抱歉，獲取股票信息時發生錯誤：{str(e)}"
+                    
+                    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
                     return
                 else:
                     reply_text = user_message
