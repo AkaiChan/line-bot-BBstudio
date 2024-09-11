@@ -55,7 +55,7 @@ def get_stock_info(stock_code):
                 f"Stock Code {stock_code} Information:\n"
                 f"Date: {datetime.fromtimestamp(meta.get('regularMarketTime', 0)).strftime('%Y-%m-%d %H:%M:%S')}\n"
                 f"Current Price: {current_price}\n"
-                f"Change: {change} ({change_percent:.2f}% if isinstance(change_percent, float) else 'N/A'})\n"
+                f"Change: {change} ({change_percent:.2f}% if isinstance(change_percent, float) else 'N/A')\n"
                 f"Open: {quote.get('open', ['N/A'])[-1] if quote.get('open') else 'N/A'}\n"
                 f"High: {quote.get('high', ['N/A'])[-1] if quote.get('high') else 'N/A'}\n"
                 f"Low: {quote.get('low', ['N/A'])[-1] if quote.get('low') else 'N/A'}\n"
