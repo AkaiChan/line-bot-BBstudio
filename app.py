@@ -160,29 +160,20 @@ def handle_message(event):
                     return
                 elif user_message.startswith("stock"):
                     try:
-                        # 使用正則表達式提取股票代碼
-                        import re
-                        match = re.search(r'stock\s+(\w+)', user_message)
-                        if match:
-                            stock_code = match.group(1)
-                            stock_info = get_stock_info(stock_code)
-                            
-                            # 檢查 stock_info 的類型和內容
-                            print(f"Debug: stock_info type: {type(stock_info)}")
-                            print(f"Debug: stock_info content: {stock_info}")
-                            
-                            # 確保 stock_info 是一個字符串
-                            if isinstance(stock_info, str):
-                                flex_message = create_stock_flex_message(stock_info)
-                                line_bot_api.reply_message(
-                                    event.reply_token,
-                                    FlexSendMessage(alt_text=f"Stock {stock_code} Info", contents=flex_message)
-                                )
-                            else:
-                                raise ValueError(f"Stock info is not a string: {stock_info}")
+                        stock_code = user_message.split()[1]
+                        stock_info = get_stock_info(stock_code)
+                        
+                        if isinstance(stock_info, str):
+                            flex_message = create_stock_flex_message(stock_info)
+                            line_bot_api.reply_message(
+                                event.reply_token,
+                                FlexSendMessage(alt_text=f"Stock {stock_code} Info", contents=flex_message)
+                            )
+                        else:
+                            raise ValueError(f"無效的股票信息格式")
                     except Exception as e:
                         error_message = f"處理股票信息時發生錯誤: {str(e)}"
-                        print(error_message)  # 在伺服器日誌中打印錯誤
+                        print(error_message)
                         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"抱歉，發生了錯誤：{str(e)}"))
                     return
                 else:
