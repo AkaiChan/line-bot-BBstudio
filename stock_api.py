@@ -3,12 +3,8 @@ import json
 from datetime import datetime
 
 def get_stock_info(stock_code):
-    # 對於以 0 開頭的股票代碼，可能需要特殊處理
-    if stock_code.startswith('0'):
-        symbol = stock_code + ".TWO"  # 對於上櫃股票
-    else:
-        symbol = stock_code + ".TW"  # 對於上市股票
-    
+    # 對於所有股票代碼，我們都使用 .TW 後綴
+    symbol = f"{stock_code}.TW"
     base_url = "https://query1.finance.yahoo.com/v8/finance/chart/"
     
     params = {
@@ -30,7 +26,6 @@ def get_stock_info(stock_code):
         
         print(f"Request URL: {response.url}")
         print(f"Status Code: {response.status_code}")
-        print(f"Response Headers: {response.headers}")
         
         response.raise_for_status()
         
@@ -76,7 +71,3 @@ def get_stock_info(stock_code):
     except Exception as e:
         print(f"Unexpected error: {str(e)}")
         return f"An unexpected error occurred: {str(e)}"
-
-# 用於測試
-if __name__ == "__main__":
-    print(get_stock_info("2330"))  # 測試台積電的股票代碼
