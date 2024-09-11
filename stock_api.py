@@ -1,9 +1,12 @@
 import requests
 import json
 from datetime import datetime
+import logging
+
+logger = logging.getLogger(__name__)
 
 def get_stock_info(stock_code):
-    # 對於所有股票代碼，我們都使用 .TW 後綴
+    logger.info(f"Fetching stock info for {stock_code}")
     symbol = f"{stock_code}.TW"
     base_url = "https://query1.finance.yahoo.com/v8/finance/chart/"
     
@@ -22,14 +25,16 @@ def get_stock_info(stock_code):
     }
     
     try:
+        logger.debug(f"Sending request to {base_url + symbol}")
         response = requests.get(base_url + symbol, params=params, headers=headers)
         
-        print(f"Request URL: {response.url}")
-        print(f"Status Code: {response.status_code}")
+        logger.info(f"Request URL: {response.url}")
+        logger.info(f"Status Code: {response.status_code}")
         
         response.raise_for_status()
         
         data = response.json()
+        logger.debug(f"Received data: {data}")
         
         if 'chart' in data and 'result' in data['chart'] and data['chart']['result']:
             stock_data = data['chart']['result'][0]
@@ -57,18 +62,18 @@ def get_stock_info(stock_code):
                 f"Volume: {quote.get('volume', ['N/A'])[-1] if quote.get('volume') else 'N/A'}\n"
                 f"Previous Close: {previous_close}"
             )
+            logger.info(f"Successfully retrieved stock info for {stock_code}")
             return stock_info
         else:
-            print(f"Unexpected data format. Received data: {data}")
+            logger.warning(f"Unexpected data format for {stock_code}")
             return f"Unable to retrieve information for stock code {stock_code}. Unexpected data format."
 
     except requests.exceptions.RequestException as e:
-        print(f"Network error occurred: {str(e)}")
+        logger.error(f"Network error occurred: {str(e)}", exc_info=True)
         return f"Network error occurred while fetching stock information: {str(e)}"
     except json.JSONDecodeError as json_error:
-        print(f"JSON decode error: {str(json_error)}")
+        logger.error(f"JSON decode error: {str(json_error)}", exc_info=True)
         return f"Error decoding API response: {str(json_error)}"
     except Exception as e:
-        print(f"Unexpected error: {str(e)}")
-        print(f"Error details: {type(e).__name__}, {str(e)}")
+        logger.error(f"Unexpected error: {str(e)}", exc_info=True)
         return f"An unexpected error occurred: {type(e).__name__}, {str(e)}"
