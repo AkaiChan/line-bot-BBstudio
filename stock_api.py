@@ -3,10 +3,12 @@ from datetime import datetime
 
 def get_stock_info(stock_code):
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{stock_code}.TW"
-    response = requests.get(url)
-    data = response.json()
-
+    
     try:
+        response = requests.get(url)
+        response.raise_for_status()  # 檢查 HTTP 錯誤
+        data = response.json()
+
         result = data['chart']['result'][0]
         quote = result['indicators']['quote'][0]
         meta = result['meta']
@@ -27,8 +29,14 @@ def get_stock_info(stock_code):
             f"成交量：{quote['volume'][-1]} 股\n"
             f"前一日收盤價：{previous_close:.2f} 元"
         )
+    except requests.RequestException as e:
+        return f"獲取股票 {stock_code} 信息時發生網絡錯誤：{str(e)}"
+    except ValueError as e:
+        return f"解析股票 {stock_code} 數據時發生錯誤：{str(e)}"
+    except KeyError as e:
+        return f"股票 {stock_code} 數據格式不正確：{str(e)}"
     except Exception as e:
-        return f"獲取股票 {stock_code} 信息時發生錯誤：{str(e)}"
+        return f"獲取股票 {stock_code} 信息時發生未知錯誤：{str(e)}"
 
 # 使用示例
 # info = get_stock_info("0050")
