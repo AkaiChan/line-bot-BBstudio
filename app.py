@@ -6,6 +6,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage, FlexSendMessage
 from flex_message_library import create_bubble, create_carousel, create_receipt_flex_message, create_shopping_list_flex_message, create_ticket_flex_message, create_transit_flex_message
+from stock_api import get_stock_info  
 import os
 
 app = Flask(__name__)
@@ -157,6 +158,11 @@ def handle_message(event):
                     flex_message = FlexSendMessage(alt_text="Receipt", contents=receipt_flex)
                     line_bot_api.reply_message(event.reply_token, flex_message)
                     return
+                elif user_message.startswith("股票"):
+                    # 假設用戶發送的消息格式是 "股票 2330"
+                    stock_code = user_message.split()[1]
+                    stock_info = get_stock_info(stock_code)
+                    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=stock_info))
                 else:
                     reply_text = user_message
         except Exception as e:
