@@ -179,22 +179,26 @@ def handle_message(event):
                     return
                 elif user_message.startswith("chart"):
                     stock_code = user_message.split()[1]
-                    image_base64 = TWStockAPI.create_happy_5_lines_chart(stock_code)
-                    
-                    # 將 base64 圖片數據解碼並保存為文件
-                    image_data = base64.b64decode(image_base64)
-                    filename = f"chart_{stock_code}.png"
-                    file_path = os.path.join(TEMP_DIR, filename)
-                    with open(file_path, "wb") as f:
-                        f.write(image_data)
-                    
-                    # 構建圖片 URL
-                    image_url = f"https://{request.host}/image/{filename}"
-                    
-                    line_bot_api.reply_message(
-                        event.reply_token,
-                        ImageSendMessage(original_content_url=image_url, preview_image_url=image_url)
-                    )
+                    try:
+                        image_base64 = TWStockAPI.create_happy_5_lines_chart(stock_code)
+                        
+                        # 將 base64 圖片數據解碼並保存為文件
+                        image_data = base64.b64decode(image_base64)
+                        filename = f"chart_{stock_code}.png"
+                        file_path = os.path.join(TEMP_DIR, filename)
+                        with open(file_path, "wb") as f:
+                            f.write(image_data)
+                        
+                        # 構建圖片 URL
+                        image_url = f"https://{request.host}/image/{filename}"
+                        
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            ImageSendMessage(original_content_url=image_url, preview_image_url=image_url)
+                        )
+                    except Exception as e:
+                        logger.error(f"生成圖表時發生錯誤: {str(e)}")
+                        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"生成圖表時發生錯誤: {str(e)}"))
                     return
                 else:
                     reply_text = user_message
