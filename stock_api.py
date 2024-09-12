@@ -1,4 +1,6 @@
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 from datetime import date, timedelta
 import logging
 import json
@@ -16,9 +18,22 @@ class TWStockAPI:
         # 使用上個月的日期，因為當前月份的數據可能還不完整
         last_month = today.replace(day=1) - timedelta(days=1)
         url = f"{TWStockAPI.BASE_URL}?date={last_month.strftime('%Y%m%d')}&stockNo={stock_code}&response=json"
+
+        # 設置重試策略
+        retry_strategy = Retry(
+            total=3,
+            backoff_factor=1,
+            status_forcelist=[429, 500, 502, 503, 504],
+            allowed_methods=["HEAD", "GET", "OPTIONS"]
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        http = requests.Session()
+        http.mount("https://", adapter)
+        http.mount("http://", adapter)
+
         try:
             logger.debug(f"正在請求 URL: {url}")
-            response = requests.get(url, timeout=10)  # 添加超時設置
+            response = http.get(url, timeout=30)  # 增加超時時間到30秒
             response.raise_for_status()
 
             logger.debug(f"API 響應狀態碼: {response.status_code}")
