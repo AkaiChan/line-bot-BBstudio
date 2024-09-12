@@ -2,7 +2,7 @@ import os
 from venv import logger
 import requests
 import psycopg2
-from flask import Flask, request, abort
+from flask import Flask, json, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage, FlexSendMessage
@@ -163,8 +163,7 @@ def handle_message(event):
                 elif user_message.startswith("stock"):
                     stock_code = user_message.split()[1]
                     stock_info = TWStockAPI.get_stock_info(stock_code)
-                    flex_message = create_stock_flex_message(stock_info)
-                    line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"股票 {stock_code} 信息", contents=flex_message))
+                    reply_text = json.dumps(stock_info, ensure_ascii=False, indent=2)
                     return
                 else:
                     reply_text = user_message
