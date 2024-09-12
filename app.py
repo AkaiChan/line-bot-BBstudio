@@ -5,10 +5,13 @@ import psycopg2
 from flask import Flask, json, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
-from linebot.models import MessageEvent, TextMessage, TextSendMessage, FlexSendMessage
+from linebot.models import MessageEvent, TextMessage, TextSendMessage, FlexSendMessage, ImageSendMessage
 from flex_message_library import create_bubble, create_carousel, create_receipt_flex_message, create_shopping_list_flex_message, create_stock_flex_message, create_ticket_flex_message, create_transit_flex_message
 from stock_api import TWStockAPI  
 import os
+import logging
+import tempfile
+import base64
 
 app = Flask(__name__)
 
@@ -30,6 +33,11 @@ def get_weather(city):
         return f"{city}的天氣：{weather_description}，溫度：{temperature}°C"
     else:
         return "抱歉，無法獲取天氣資訊。"
+    
+
+# 創建臨時目錄來存儲圖片
+TEMP_DIR = tempfile.mkdtemp()
+
 @app.route("/callback", methods=['POST'])
 def callback():
     signature = request.headers['X-Line-Signature']
@@ -167,6 +175,24 @@ def handle_message(event):
                     line_bot_api.reply_message(
                         event.reply_token,
                         FlexSendMessage(alt_text=f"股票 {stock_code} 信息", contents=flex_message)
+                    )
+                    return
+                elif user_message.startswith("chart"):
+                    image_base64 = TWStockAPI.create_happy_5_lines_chart(stock_code)
+                    
+                    # 將 base64 圖片數據解碼並保存為文件
+                    image_data = base64.b64decode(image_base64)
+                    filename = f"chart_{stock_code}.png"
+                    file_path = os.path.join(TEMP_DIR, filename)
+                    with open(file_path, "wb") as f:
+                        f.write(image_data)
+                    
+                    # 構建圖片 URL
+                    image_url = f"https://{request.host}/image/{filename}"
+                    
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        ImageSendMessage(original_content_url=image_url, preview_image_url=image_url)
                     )
                     return
                 else:
