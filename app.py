@@ -163,7 +163,8 @@ def handle_message(event):
                 elif user_message.startswith("stock"):
                     stock_code = user_message.split()[1]
                     stock_info = TWStockAPI.get_stock_info(stock_code)
-                    line_bot_api.reply_message(event.reply_token, stock_info)
+                    flex_message = create_stock_flex_message(stock_info)
+                    line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"股票 {stock_code} 信息", contents=flex_message))
                     return
                 else:
                     reply_text = user_message
