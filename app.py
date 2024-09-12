@@ -6,7 +6,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage, FlexSendMessage
 from flex_message_library import create_bubble, create_carousel, create_receipt_flex_message, create_shopping_list_flex_message, create_stock_flex_message, create_ticket_flex_message, create_transit_flex_message
-from stock_api import TWStockAPI  
+from stock_api import TWStockAPI, get_stock_info  
 import os
 
 app = Flask(__name__)
