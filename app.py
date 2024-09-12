@@ -6,7 +6,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage, FlexSendMessage
 from flex_message_library import create_bubble, create_carousel, create_receipt_flex_message, create_shopping_list_flex_message, create_stock_flex_message, create_ticket_flex_message, create_transit_flex_message
-from stock_api import get_stock_info  
+from stock_api import TWStockAPI  
 import os
 
 app = Flask(__name__)
@@ -165,7 +165,7 @@ def handle_message(event):
                             reply_text = "請提供股票代碼，例如：stock 0050"
                         else:
                             stock_code = parts[1]
-                            stock_info = get_stock_info(stock_code)
+                            stock_info = TWStockAPI.get_stock_info(stock_code)
                             reply_text = stock_info
                     except Exception as e:
                         print(f"處理股票信息時發生錯誤: {str(e)}")
