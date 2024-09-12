@@ -17,8 +17,18 @@ class TWStockAPI:
             response = requests.get(url)
             response.raise_for_status()  # 如果狀態碼不是 200，將引發異常
             
+            logger.debug(f"API 響應狀態碼: {response.status_code}")
             logger.debug(f"API 響應內容: {response.text}")
-            data = response.json()
+            
+            # 檢查響應內容是否為空
+            if not response.text.strip():
+                return f"獲取股票 {stock_code} 信息失敗：API 返回空響應"
+            
+            # 嘗試解析 JSON
+            try:
+                data = response.json()
+            except json.JSONDecodeError:
+                return f"獲取股票 {stock_code} 信息失敗：API 返回非 JSON 數據：{response.text[:100]}..."
             
             if not data:
                 return f"無法獲取股票 {stock_code} 的數據，API 返回空結果"
@@ -30,21 +40,18 @@ class TWStockAPI:
                 f"股票代碼：{stock_code}\n"
                 f"股票名稱：{stock_name if stock_name else '未知'}\n"
                 f"日期：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
-                f"成交股數：{latest_data['TradeVolume']}\n"
-                f"成交金額：{latest_data['TradeValue']}\n"
-                f"開盤價：{latest_data['OpeningPrice']}\n"
-                f"最高價：{latest_data['HighestPrice']}\n"
-                f"最低價：{latest_data['LowestPrice']}\n"
-                f"收盤價：{latest_data['ClosingPrice']}\n"
-                f"漲跌：{latest_data['Change']}\n"
-                f"成交筆數：{latest_data['Transaction']}"
+                f"成交股數：{latest_data.get('TradeVolume', 'N/A')}\n"
+                f"成交金額：{latest_data.get('TradeValue', 'N/A')}\n"
+                f"開盤價：{latest_data.get('OpeningPrice', 'N/A')}\n"
+                f"最高價：{latest_data.get('HighestPrice', 'N/A')}\n"
+                f"最低價：{latest_data.get('LowestPrice', 'N/A')}\n"
+                f"收盤價：{latest_data.get('ClosingPrice', 'N/A')}\n"
+                f"漲跌：{latest_data.get('Change', 'N/A')}\n"
+                f"成交筆數：{latest_data.get('Transaction', 'N/A')}"
             )
         except requests.RequestException as e:
             logger.exception(f"獲取股票 {stock_code} 信息時發生網絡錯誤")
             return f"獲取股票 {stock_code} 信息時發生網絡錯誤：{str(e)}"
-        except json.JSONDecodeError as e:
-            logger.exception(f"解析股票 {stock_code} 數據時發生錯誤")
-            return f"解析股票 {stock_code} 數據時發生錯誤：{str(e)}"
         except Exception as e:
             logger.exception(f"獲取股票 {stock_code} 信息時發生未知錯誤")
             return f"獲取股票 {stock_code} 信息時發生未知錯誤：{str(e)}"
