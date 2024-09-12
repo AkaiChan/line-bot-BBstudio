@@ -1,6 +1,6 @@
 import requests
 from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
+from requests.packages.urllib3.util.retry import Retry # type: ignore
 from datetime import date, timedelta
 import logging
 import json
