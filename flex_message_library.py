@@ -620,8 +620,8 @@ logger = logging.getLogger(__name__)
 def create_stock_flex_message(stock_info):
     # 計算漲跌幅
     try:
-        change = float(stock_info['收盤價']) - float(stock_info['昨日收盤價'])
-        change_percent = (change / float(stock_info['昨日收盤價'])) * 100
+        change = round(float(stock_info['收盤價']) - float(stock_info['昨日收盤價']), 2)
+        change_percent = round((change / float(stock_info['昨日收盤價'])) * 100, 2)
         change_color = "#FF0000" if change >= 0 else "#00FF00"
     except ValueError:
         change = 0
@@ -653,169 +653,175 @@ def create_stock_flex_message(stock_info):
                 },
                 {
                     "type": "box",
-                    "layout": "vertical",
+                    "layout": "horizontal",
                     "margin": "xxl",
                     "spacing": "sm",
                     "contents": [
                         {
                             "type": "box",
-                            "layout": "horizontal",
+                            "layout": "vertical",
                             "contents": [
                                 {
                                     "type": "box",
-                                    "layout": "vertical",
+                                    "layout": "horizontal",
                                     "contents": [
                                         {
-                                            "type": "box",
-                                            "layout": "horizontal",
-                                            "contents": [
-                                                {
-                                                    "type": "text",
-                                                    "text": "Close",
-                                                    "size": "sm",
-                                                    "color": "#555555",
-                                                    "flex": 0
-                                                },
-                                                {
-                                                    "type": "text",
-                                                    "text": stock_info['收盤價'],
-                                                    "size": "sm",
-                                                    "color": "#111111",
-                                                    "align": "end"
-                                                }
-                                            ]
+                                            "type": "text",
+                                            "text": "Close",
+                                            "size": "sm",
+                                            "color": "#555555",
+                                            "flex": 0
                                         },
                                         {
-                                            "type": "box",
-                                            "layout": "horizontal",
-                                            "contents": [
-                                                {
-                                                    "type": "text",
-                                                    "text": "Open",
-                                                    "size": "sm",
-                                                    "color": "#555555",
-                                                    "flex": 0
-                                                },
-                                                {
-                                                    "type": "text",
-                                                    "text": stock_info['開盤價'],
-                                                    "size": "sm",
-                                                    "color": "#111111",
-                                                    "align": "end"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "type": "box",
-                                            "layout": "horizontal",
-                                            "contents": [
-                                                {
-                                                    "type": "text",
-                                                    "text": "High",
-                                                    "size": "sm",
-                                                    "color": "#555555",
-                                                    "flex": 0
-                                                },
-                                                {
-                                                    "type": "text",
-                                                    "text": stock_info['最高價'],
-                                                    "size": "sm",
-                                                    "color": "#111111",
-                                                    "align": "end"
-                                                }
-                                            ]
+                                            "type": "text",
+                                            "text": f"{float(stock_info['收盤價']):.2f}",
+                                            "size": "sm",
+                                            "color": "#111111",
+                                            "align": "end"
                                         }
-                                    ],
-                                    "flex": 1
+                                    ]
                                 },
                                 {
                                     "type": "box",
-                                    "layout": "vertical",
+                                    "layout": "horizontal",
                                     "contents": [
                                         {
-                                            "type": "box",
-                                            "layout": "horizontal",
-                                            "contents": [
-                                                {
-                                                    "type": "text",
-                                                    "text": "Change",
-                                                    "size": "sm",
-                                                    "color": "#555555",
-                                                    "flex": 0
-                                                },
-                                                {
-                                                    "type": "text",
-                                                    "text": f"{change:.2f}",
-                                                    "size": "sm",
-                                                    "color": change_color,
-                                                    "align": "end"
-                                                }
-                                            ]
+                                            "type": "text",
+                                            "text": "Open",
+                                            "size": "sm",
+                                            "color": "#555555",
+                                            "flex": 0
                                         },
                                         {
-                                            "type": "box",
-                                            "layout": "horizontal",
-                                            "contents": [
-                                                {
-                                                    "type": "text",
-                                                    "text": "Change%",
-                                                    "size": "sm",
-                                                    "color": "#555555",
-                                                    "flex": 0
-                                                },
-                                                {
-                                                    "type": "text",
-                                                    "text": f"{change_percent:.2f}%",
-                                                    "size": "sm",
-                                                    "color": change_color,
-                                                    "align": "end"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "type": "box",
-                                            "layout": "horizontal",
-                                            "contents": [
-                                                {
-                                                    "type": "text",
-                                                    "text": "Low",
-                                                    "size": "sm",
-                                                    "color": "#555555",
-                                                    "flex": 0
-                                                },
-                                                {
-                                                    "type": "text",
-                                                    "text": stock_info['最低價'],
-                                                    "size": "sm",
-                                                    "color": "#111111",
-                                                    "align": "end"
-                                                }
-                                            ]
+                                            "type": "text",
+                                            "text": f"{float(stock_info['開盤價']):.2f}",
+                                            "size": "sm",
+                                            "color": "#111111",
+                                            "align": "end"
                                         }
-                                    ],
-                                    "flex": 1
+                                    ]
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "contents": [
+                                        {
+                                            "type": "text",
+                                            "text": "High",
+                                            "size": "sm",
+                                            "color": "#555555",
+                                            "flex": 0
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": f"{float(stock_info['最高價']):.2f}",
+                                            "size": "sm",
+                                            "color": "#111111",
+                                            "align": "end"
+                                        }
+                                    ]
                                 }
-                            ]
+                            ],
+                            "flex": 1
                         },
                         {
                             "type": "box",
-                            "layout": "horizontal",
+                            "layout": "vertical",
                             "contents": [
                                 {
-                                    "type": "text",
-                                    "text": "Volume",
-                                    "size": "sm",
-                                    "color": "#555555",
-                                    "flex": 0
+                                    "type": "filler"
+                                }
+                            ],
+                            "width": "2px",
+                            "backgroundColor": "#AAAAAA"
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "contents": [
+                                        {
+                                            "type": "text",
+                                            "text": "Change",
+                                            "size": "sm",
+                                            "color": "#555555",
+                                            "flex": 0
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": f"{change:.2f}",
+                                            "size": "sm",
+                                            "color": change_color,
+                                            "align": "end"
+                                        }
+                                    ]
                                 },
                                 {
-                                    "type": "text",
-                                    "text": stock_info['成交股數'],
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "align": "end"
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "contents": [
+                                        {
+                                            "type": "text",
+                                            "text": "Change%",
+                                            "size": "sm",
+                                            "color": "#555555",
+                                            "flex": 0
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": f"{change_percent:.2f}%",
+                                            "size": "sm",
+                                            "color": change_color,
+                                            "align": "end"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "contents": [
+                                        {
+                                            "type": "text",
+                                            "text": "Low",
+                                            "size": "sm",
+                                            "color": "#555555",
+                                            "flex": 0
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": f"{float(stock_info['最低價']):.2f}",
+                                            "size": "sm",
+                                            "color": "#111111",
+                                            "align": "end"
+                                        }
+                                    ]
                                 }
-                            ]
+                            ],
+                            "flex": 1
+                        }
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "margin": "md",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": "Volume",
+                            "size": "sm",
+                            "color": "#555555",
+                            "flex": 0
+                        },
+                        {
+                            "type": "text",
+                            "text": f"{int(stock_info['成交股數']):,}",
+                            "size": "sm",
+                            "color": "#111111",
+                            "align": "end"
                         }
                     ]
                 }
