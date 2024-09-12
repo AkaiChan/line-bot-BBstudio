@@ -725,15 +725,8 @@ def create_stock_flex_message(stock_info):
                             "flex": 1
                         },
                         {
-                            "type": "box",
-                            "layout": "vertical",
-                            "contents": [
-                                {
-                                    "type": "filler"
-                                }
-                            ],
-                            "width": "2px",
-                            "backgroundColor": "#AAAAAA"
+                            "type": "separator",
+                            "margin": "sm"
                         },
                         {
                             "type": "box",
@@ -803,6 +796,10 @@ def create_stock_flex_message(stock_info):
                             "flex": 1
                         }
                     ]
+                },
+                {
+                    "type": "separator",
+                    "margin": "xxl"
                 },
                 {
                     "type": "box",
