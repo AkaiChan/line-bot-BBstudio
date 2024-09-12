@@ -628,6 +628,9 @@ def create_stock_flex_message(stock_info):
         change_percent = 0
         change_color = "#888888"
 
+    def format_number(number, width=8):
+        return f"{float(number):>{width}.2f}"
+
     def create_data_row(label, value, color="#111111"):
         return {
             "type": "box",
@@ -646,7 +649,7 @@ def create_stock_flex_message(stock_info):
                     "size": "sm",
                     "color": color,
                     "align": "end",
-                    "font": "monospace"
+                    "wrap": False
                 }
             ]
         }
@@ -684,9 +687,9 @@ def create_stock_flex_message(stock_info):
                             "type": "box",
                             "layout": "vertical",
                             "contents": [
-                                create_data_row("Close", f"{float(stock_info['收盤價']):8.2f}"),
-                                create_data_row("Open", f"{float(stock_info['開盤價']):8.2f}"),
-                                create_data_row("High", f"{float(stock_info['最高價']):8.2f}")
+                                create_data_row("Close", format_number(stock_info['收盤價'])),
+                                create_data_row("Open", format_number(stock_info['開盤價'])),
+                                create_data_row("High", format_number(stock_info['最高價']))
                             ],
                             "flex": 1
                         },
@@ -698,9 +701,9 @@ def create_stock_flex_message(stock_info):
                             "type": "box",
                             "layout": "vertical",
                             "contents": [
-                                create_data_row("Change", f"{change:8.2f}", change_color),
-                                create_data_row("Change%", f"{change_percent:7.2f}%", change_color),
-                                create_data_row("Low", f"{float(stock_info['最低價']):8.2f}")
+                                create_data_row("Change", format_number(change), change_color),
+                                create_data_row("Change%", f"{change_percent:>7.2f}%", change_color),
+                                create_data_row("Low", format_number(stock_info['最低價']))
                             ],
                             "flex": 1
                         }
