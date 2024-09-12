@@ -164,7 +164,6 @@ def handle_message(event):
                     stock_code = user_message.split()[1]
                     stock_info = TWStockAPI.get_stock_info(stock_code)
                     reply_text = json.dumps(stock_info, ensure_ascii=False, indent=2)
-                    return
                 else:
                     reply_text = user_message
         except Exception as e:
