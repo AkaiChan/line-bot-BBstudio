@@ -1,4 +1,5 @@
 import os
+from venv import logger
 import requests
 import psycopg2
 from flask import Flask, request, abort
@@ -159,19 +160,32 @@ def handle_message(event):
                     line_bot_api.reply_message(event.reply_token, flex_message)
                     return
                 elif user_message.startswith("stock"):
-                    try:
-                        parts = user_message.split()
-                        if len(parts) < 2:
-                            reply_text = "請提供股票代碼，例如：stock 0050"
-                        else:
-                            stock_code = parts[1]
+                    logger.debug("處理股票信息請求")
+                    parts = user_message.split()
+                    if len(parts) < 2:
+                        reply_text = "請提供股票代碼，例如：stock 0050"
+                        logger.debug(f"發送回覆: {reply_text}")
+                        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+                    else:
+                        stock_code = parts[1]
+                        logger.debug(f"獲取股票代碼: {stock_code}")
+                        try:
                             stock_info = TWStockAPI.get_stock_info(stock_code)
-                            reply_text = stock_info
-                    except Exception as e:
-                        print(f"處理股票信息時發生錯誤: {str(e)}")
-                        reply_text = f"抱歉，獲取股票信息時發生錯誤：{str(e)}"
-                    
-                    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+                            logger.debug(f"獲取到的股票信息: {stock_info}")
+                            if isinstance(stock_info, dict) and "error" in stock_info:
+                                error_message = stock_info["error"]
+                                logger.debug(f"發送錯誤信息: {error_message}")
+                                line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"抱歉，{error_message}"))
+                            else:
+                                logger.debug("創建 Flex Message")
+                                flex_message = create_stock_flex_message(stock_info)
+                                logger.debug("發送 Flex Message")
+                                line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"股票 {stock_code} 信息", contents=flex_message))
+                        except Exception as e:
+                            logger.exception("處理股票信息時發生錯誤")
+                            error_message = f"處理股票 {stock_code} 信息時發生錯誤：{str(e)}"
+                            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=error_message))
+                    logger.debug("股票信息處理完成")
                     return
                 else:
                     reply_text = user_message

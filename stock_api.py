@@ -18,7 +18,7 @@ class TWStockAPI:
         url = f"{TWStockAPI.BASE_URL}?date={last_month.strftime('%Y%m%d')}&stockNo={stock_code}&response=json"
         try:
             logger.debug(f"正在請求 URL: {url}")
-            response = requests.get(url)
+            response = requests.get(url, timeout=10)  # 添加超時設置
             response.raise_for_status()
 
             logger.debug(f"API 響應狀態碼: {response.status_code}")

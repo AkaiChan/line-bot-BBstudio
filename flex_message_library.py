@@ -612,392 +612,69 @@ def create_payment_info(payment_id):
         ]
     }
 
-def create_stock_flex_message(stock_info):
-    return {
-        "type": "bubble",
-        "body": {
-            "type": "box",
-            "layout": "vertical",
-            "contents": [
-                {
-                    "type": "text",
-                    "text": f"股票代碼：{stock_info['股票代碼']}",
-                    "weight": "bold",
-                    "size": "xl"
-                },
-                {
-                    "type": "text",
-                    "text": f"日期：{stock_info['日期']}",
-                    "size": "sm",
-                    "color": "#888888"
-                },
-                {
-                    "type": "separator",
-                    "margin": "xxl"
-                },
-                {
-                    "type": "box",
-                    "layout": "vertical",
-                    "margin": "xxl",
-                    "spacing": "sm",
-                    "contents": [
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "收盤價",
-                                    "size": "sm",
-                                    "color": "#555555",
-                                    "flex": 0
-                                },
-                                {
-                                    "type": "text",
-                                    "text": stock_info['收盤價'],
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "align": "end"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "漲跌價差",
-                                    "size": "sm",
-                                    "color": "#555555",
-                                    "flex": 0
-                                },
-                                {
-                                    "type": "text",
-                                    "text": stock_info['漲跌價差'],
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "align": "end"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "開盤價",
-                                    "size": "sm",
-                                    "color": "#555555",
-                                    "flex": 0
-                                },
-                                {
-                                    "type": "text",
-                                    "text": stock_info['開盤價'],
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "align": "end"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "最高價",
-                                    "size": "sm",
-                                    "color": "#555555",
-                                    "flex": 0
-                                },
-                                {
-                                    "type": "text",
-                                    "text": stock_info['最高價'],
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "align": "end"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "最低價",
-                                    "size": "sm",
-                                    "color": "#555555",
-                                    "flex": 0
-                                },
-                                {
-                                    "type": "text",
-                                    "text": stock_info['最低價'],
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "align": "end"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "成交股數",
-                                    "size": "sm",
-                                    "color": "#555555",
-                                    "flex": 0
-                                },
-                                {
-                                    "type": "text",
-                                    "text": stock_info['成交股數'],
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "align": "end"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "成交金額",
-                                    "size": "sm",
-                                    "color": "#555555",
-                                    "flex": 0
-                                },
-                                {
-                                    "type": "text",
-                                    "text": stock_info['成交金額'],
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "align": "end"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "成交筆數",
-                                    "size": "sm",
-                                    "color": "#555555",
-                                    "flex": 0
-                                },
-                                {
-                                    "type": "text",
-                                    "text": stock_info['成交筆數'],
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "align": "end"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        }
-    }
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 def create_stock_flex_message(stock_info):
-    return {
-        "type": "bubble",
-        "body": {
-            "type": "box",
-            "layout": "vertical",
-            "contents": [
-                {
-                    "type": "text",
-                    "text": f"股票代碼：{stock_info['股票代碼']}",
-                    "weight": "bold",
-                    "size": "xl"
-                },
-                {
-                    "type": "text",
-                    "text": f"日期：{stock_info['日期']}",
-                    "size": "sm",
-                    "color": "#888888"
-                },
-                {
-                    "type": "separator",
-                    "margin": "xxl"
-                },
-                {
-                    "type": "box",
-                    "layout": "vertical",
-                    "margin": "xxl",
-                    "spacing": "sm",
-                    "contents": [
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "收盤價",
-                                    "size": "sm",
-                                    "color": "#555555",
-                                    "flex": 0
-                                },
-                                {
-                                    "type": "text",
-                                    "text": stock_info['收盤價'],
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "align": "end"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "漲跌價差",
-                                    "size": "sm",
-                                    "color": "#555555",
-                                    "flex": 0
-                                },
-                                {
-                                    "type": "text",
-                                    "text": stock_info['漲跌價差'],
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "align": "end"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "開盤價",
-                                    "size": "sm",
-                                    "color": "#555555",
-                                    "flex": 0
-                                },
-                                {
-                                    "type": "text",
-                                    "text": stock_info['開盤價'],
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "align": "end"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "最高價",
-                                    "size": "sm",
-                                    "color": "#555555",
-                                    "flex": 0
-                                },
-                                {
-                                    "type": "text",
-                                    "text": stock_info['最高價'],
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "align": "end"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "最低價",
-                                    "size": "sm",
-                                    "color": "#555555",
-                                    "flex": 0
-                                },
-                                {
-                                    "type": "text",
-                                    "text": stock_info['最低價'],
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "align": "end"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "成交股數",
-                                    "size": "sm",
-                                    "color": "#555555",
-                                    "flex": 0
-                                },
-                                {
-                                    "type": "text",
-                                    "text": stock_info['成交股數'],
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "align": "end"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "成交金額",
-                                    "size": "sm",
-                                    "color": "#555555",
-                                    "flex": 0
-                                },
-                                {
-                                    "type": "text",
-                                    "text": stock_info['成交金額'],
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "align": "end"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "成交筆數",
-                                    "size": "sm",
-                                    "color": "#555555",
-                                    "flex": 0
-                                },
-                                {
-                                    "type": "text",
-                                    "text": stock_info['成交筆數'],
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "align": "end"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
+    logger.debug(f"創建股票 Flex Message，輸入數據: {stock_info}")
+    try:
+        # 檢查所有必要的鍵是否存在
+        required_keys = ["股票代碼", "日期", "成交股數", "成交金額", "開盤價", "最高價", "最低價", "收盤價", "漲跌價差", "成交筆數"]
+        for key in required_keys:
+            if key not in stock_info:
+                raise KeyError(f"缺少必要的鍵: {key}")
+
+        # 創建 Flex Message
+        flex_content = {
+            "type": "bubble",
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {"type": "text", "text": f"股票代碼: {stock_info['股票代碼']}", "weight": "bold", "size": "xl"},
+                    {"type": "text", "text": f"日期: {stock_info['日期']}", "size": "sm", "color": "#888888"},
+                    {"type": "separator", "margin": "xxl"},
+                    {"type": "box", "layout": "vertical", "margin": "xxl", "spacing": "sm", "contents": [
+                        {"type": "box", "layout": "horizontal", "contents": [
+                            {"type": "text", "text": "收盤價", "size": "sm", "color": "#555555", "flex": 0},
+                            {"type": "text", "text": stock_info['收盤價'], "size": "sm", "color": "#111111", "align": "end"}
+                        ]},
+                        {"type": "box", "layout": "horizontal", "contents": [
+                            {"type": "text", "text": "開盤價", "size": "sm", "color": "#555555", "flex": 0},
+                            {"type": "text", "text": stock_info['開盤價'], "size": "sm", "color": "#111111", "align": "end"}
+                        ]},
+                        {"type": "box", "layout": "horizontal", "contents": [
+                            {"type": "text", "text": "最高價", "size": "sm", "color": "#555555", "flex": 0},
+                            {"type": "text", "text": stock_info['最高價'], "size": "sm", "color": "#111111", "align": "end"}
+                        ]},
+                        {"type": "box", "layout": "horizontal", "contents": [
+                            {"type": "text", "text": "最低價", "size": "sm", "color": "#555555", "flex": 0},
+                            {"type": "text", "text": stock_info['最低價'], "size": "sm", "color": "#111111", "align": "end"}
+                        ]},
+                        {"type": "box", "layout": "horizontal", "contents": [
+                            {"type": "text", "text": "漲跌價差", "size": "sm", "color": "#555555", "flex": 0},
+                            {"type": "text", "text": stock_info['漲跌價差'], "size": "sm", "color": "#111111", "align": "end"}
+                        ]},
+                        {"type": "box", "layout": "horizontal", "contents": [
+                            {"type": "text", "text": "成交股數", "size": "sm", "color": "#555555", "flex": 0},
+                            {"type": "text", "text": stock_info['成交股數'], "size": "sm", "color": "#111111", "align": "end"}
+                        ]},
+                        {"type": "box", "layout": "horizontal", "contents": [
+                            {"type": "text", "text": "成交金額", "size": "sm", "color": "#555555", "flex": 0},
+                            {"type": "text", "text": stock_info['成交金額'], "size": "sm", "color": "#111111", "align": "end"}
+                        ]},
+                        {"type": "box", "layout": "horizontal", "contents": [
+                            {"type": "text", "text": "成交筆數", "size": "sm", "color": "#555555", "flex": 0},
+                            {"type": "text", "text": stock_info['成交筆數'], "size": "sm", "color": "#111111", "align": "end"}
+                        ]}
+                    ]}
+                ]
+            }
         }
-    }
+        logger.debug("成功創建 Flex Message")
+        return flex_content
+    except Exception as e:
+        logger.exception("創建 Flex Message 時發生錯誤")
+        raise
