@@ -161,7 +161,7 @@ def handle_message(event):
                 elif user_message.startswith("stock"):
                     parts = user_message.split()
                     if len(parts) < 2:
-                        reply_text = "請提供股票代碼，例如：stock 0050"
+                        reply_text = "請提供股票代碼,例如:stock 0050"
                         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
                     else:
                         stock_code = parts[1]
