@@ -1,89 +1,57 @@
 import requests
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry # type: ignore
-from datetime import date, timedelta
-import logging
-import json
-
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+from datetime import datetime
 
 class TWStockAPI:
-    BASE_URL = "https://www.twse.com.tw/rwd/zh/afterTrading/STOCK_DAY"
+    BASE_URL = "https://openapi.twse.com.tw/v1"
 
     @staticmethod
     def get_stock_info(stock_code):
-        logger.debug(f"開始獲取股票 {stock_code} 的信息")
-        today = date.today()
-        # 使用上個月的日期，因為當前月份的數據可能還不完整
-        last_month = today.replace(day=1) - timedelta(days=1)
-        url = f"{TWStockAPI.BASE_URL}?date={last_month.strftime('%Y%m%d')}&stockNo={stock_code}&response=json"
-
-        # 設置重試策略
-        retry_strategy = Retry(
-            total=3,
-            backoff_factor=1,
-            status_forcelist=[429, 500, 502, 503, 504],
-            allowed_methods=["HEAD", "GET", "OPTIONS"]
-        )
-        adapter = HTTPAdapter(max_retries=retry_strategy)
-        http = requests.Session()
-        http.mount("https://", adapter)
-        http.mount("http://", adapter)
-
+        url = f"{TWStockAPI.BASE_URL}/exchangeReport/STOCK_DAY_AVG?stockNo={stock_code}"
         try:
-            logger.debug(f"正在請求 URL: {url}")
-            response = http.get(url, timeout=30)  # 增加超時時間到30秒
+            response = requests.get(url)
             response.raise_for_status()
-
-            logger.debug(f"API 響應狀態碼: {response.status_code}")
-            logger.debug(f"API 響應內容: {response.text[:500]}")  # 輸出前500個字符的響應內容
-
-            # 檢查響應內容是否為空
-            if not response.text.strip():
-                logger.warning("API 返回空響應")
-                return {"error": "API 返回空響應"}
-
-            # 嘗試解析 JSON
-            try:
-                data = json.loads(response.text)
-            except json.JSONDecodeError as json_error:
-                logger.error(f"JSON 解析錯誤: {str(json_error)}")
-                return {"error": f"JSON 解析錯誤: {str(json_error)}，API 響應: {response.text[:100]}..."}
-
-            if 'stat' not in data or data['stat'] != 'OK':
-                logger.warning(f"獲取股票 {stock_code} 信息失敗：{data.get('stat', 'Unknown error')}")
-                return {"error": f"獲取股票 {stock_code} 信息失敗：{data.get('stat', 'Unknown error')}"}
-
-            if 'data' not in data or not data['data']:
-                logger.warning(f"股票 {stock_code} 沒有可用數據")
-                return {"error": f"股票 {stock_code} 沒有可用數據"}
-
-            latest_data = data['data'][-1]  # 獲取最新的一天數據
+            data = response.json()
             
-            result = {
+            if not data:
+                return f"無法獲取股票 {stock_code} 的數據"
+
+            latest_data = data[0]
+            stock_name = TWStockAPI.get_stock_name(stock_code)
+            
+            return {
                 "股票代碼": stock_code,
-                "日期": latest_data[0],
-                "成交股數": latest_data[1],
-                "成交金額": latest_data[2],
-                "開盤價": latest_data[3],
-                "最高價": latest_data[4],
-                "最低價": latest_data[5],
-                "收盤價": latest_data[6],
-                "漲跌價差": latest_data[7],
-                "成交筆數": latest_data[8]
+                "股票名稱": stock_name if stock_name else "未知",
+                "日期": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "成交股數": latest_data["TradeVolume"],
+                "成交金額": latest_data["TradeValue"],
+                "開盤價": latest_data["OpeningPrice"],
+                "最高價": latest_data["HighestPrice"],
+                "最低價": latest_data["LowestPrice"],
+                "收盤價": latest_data["ClosingPrice"],
+                "漲跌": latest_data["Change"],
+                "成交筆數": latest_data["Transaction"]
             }
-            logger.debug(f"成功獲取股票 {stock_code} 的信息: {result}")
-            return result
         except requests.RequestException as e:
-            logger.exception(f"獲取股票 {stock_code} 信息時發生網絡錯誤")
-            return {"error": f"獲取股票 {stock_code} 信息時發生網絡錯誤：{str(e)}"}
+            return f"獲取股票 {stock_code} 信息時發生網絡錯誤：{str(e)}"
         except Exception as e:
-            logger.exception(f"獲取股票 {stock_code} 信息時發生未知錯誤")
-            return {"error": f"獲取股票 {stock_code} 信息時發生未知錯誤：{str(e)}"}
+            return f"獲取股票 {stock_code} 信息時發生錯誤：{str(e)}"
+
+    @staticmethod
+    def get_stock_name(stock_code):
+        url = f"{TWStockAPI.BASE_URL}/opendata/t187ap03_L"
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            data = response.json()
+            for stock in data:
+                if stock["公司代號"] == stock_code:
+                    return stock["公司簡稱"]
+        except Exception:
+            pass
+        return None
 
 # 使用示例
 if __name__ == "__main__":
-    stock_code = "0050"
+    stock_code = "2330"  # 以台積電為例
     stock_info = TWStockAPI.get_stock_info(stock_code)
     print(stock_info)
