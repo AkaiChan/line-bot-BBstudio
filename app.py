@@ -169,19 +169,8 @@ def handle_message(event):
                         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
                     else:
                         stock_code = parts[1]
-                        logger.debug(f"獲取股票代碼: {stock_code}")
                         stock_info = TWStockAPI.get_stock_info(stock_code)
-                        logger.debug(f"獲取到的股票信息: {stock_info}")
-                        if isinstance(stock_info, dict) and "error" in stock_info:
-                            error_message = stock_info["error"]
-                            logger.debug(f"發送錯誤信息: {error_message}")
-                            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"抱歉，{error_message}"))
-                        else:
-                            logger.debug("創建 Flex Message")
-                            flex_message = create_stock_flex_message(stock_info)
-                            logger.debug("發送 Flex Message")
-                            line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"股票 {stock_code} 信息", contents=flex_message))
-                    logger.debug("股票信息處理完成")
+                        line_bot_api.reply_message(event.reply_token, stock_info)
                     return
                 else:
                     reply_text = user_message
