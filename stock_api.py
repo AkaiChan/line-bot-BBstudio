@@ -1,5 +1,5 @@
 import requests
-from datetime import date
+from datetime import date, timedelta
 import logging
 import json
 
@@ -13,14 +13,16 @@ class TWStockAPI:
     def get_stock_info(stock_code):
         logger.debug(f"開始獲取股票 {stock_code} 的信息")
         today = date.today()
-        url = f"{TWStockAPI.BASE_URL}?date={today.strftime('%Y%m%d')}&stockNo={stock_code}&response=json"
+        # 使用上個月的日期，因為當前月份的數據可能還不完整
+        last_month = today.replace(day=1) - timedelta(days=1)
+        url = f"{TWStockAPI.BASE_URL}?date={last_month.strftime('%Y%m%d')}&stockNo={stock_code}&response=json"
         try:
             logger.debug(f"正在請求 URL: {url}")
             response = requests.get(url)
             response.raise_for_status()
 
             logger.debug(f"API 響應狀態碼: {response.status_code}")
-            logger.debug(f"API 響應內容: {response.text}")  # 輸出完整的響應內容
+            logger.debug(f"API 響應內容: {response.text[:500]}")  # 輸出前500個字符的響應內容
 
             # 檢查響應內容是否為空
             if not response.text.strip():
@@ -34,11 +36,11 @@ class TWStockAPI:
                 logger.error(f"JSON 解析錯誤: {str(json_error)}")
                 return {"error": f"JSON 解析錯誤: {str(json_error)}，API 響應: {response.text[:100]}..."}
 
-            if data['stat'] != 'OK':
-                logger.warning(f"獲取股票 {stock_code} 信息失敗：{data['stat']}")
-                return {"error": f"獲取股票 {stock_code} 信息失敗：{data['stat']}"}
+            if 'stat' not in data or data['stat'] != 'OK':
+                logger.warning(f"獲取股票 {stock_code} 信息失敗：{data.get('stat', 'Unknown error')}")
+                return {"error": f"獲取股票 {stock_code} 信息失敗：{data.get('stat', 'Unknown error')}"}
 
-            if not data['data']:
+            if 'data' not in data or not data['data']:
                 logger.warning(f"股票 {stock_code} 沒有可用數據")
                 return {"error": f"股票 {stock_code} 沒有可用數據"}
 
