@@ -1,5 +1,9 @@
 import requests
 from datetime import datetime
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 class TWStockAPI:
     BASE_URL = "https://openapi.twse.com.tw/v1"
@@ -13,13 +17,13 @@ class TWStockAPI:
             data = response.json()
             
             if not data:
-                return f"無法獲取股票 {stock_code} 的數據"
+                return {"error": f"無法獲取股票 {stock_code} 的數據"}
 
             latest_data = data[0]
             stock_name = TWStockAPI.get_stock_name(stock_code)
             
             return {
-                "股票代碼": stock_code,  # 確保這個鍵存在
+                "股票代碼": stock_code,
                 "股票名稱": stock_name if stock_name else "未知",
                 "日期": latest_data.get("Date", datetime.now().strftime("%Y-%m-%d")),
                 "成交股數": latest_data.get("TradeVolume", "N/A"),
@@ -32,9 +36,11 @@ class TWStockAPI:
                 "成交筆數": latest_data.get("Transaction", "N/A")
             }
         except requests.RequestException as e:
-            return f"獲取股票 {stock_code} 信息時發生網絡錯誤：{str(e)}"
+            logger.exception(f"獲取股票 {stock_code} 信息時發生網絡錯誤")
+            return {"error": f"獲取股票 {stock_code} 信息時發生網絡錯誤：{str(e)}"}
         except Exception as e:
-            return f"獲取股票 {stock_code} 信息時發生錯誤：{str(e)}"
+            logger.exception(f"獲取股票 {stock_code} 信息時發生錯誤")
+            return {"error": f"獲取股票 {stock_code} 信息時發生錯誤：{str(e)}"}
 
     @staticmethod
     def get_stock_name(stock_code):
@@ -47,7 +53,7 @@ class TWStockAPI:
                 if stock["公司代號"] == stock_code:
                     return stock["公司簡稱"]
         except Exception:
-            pass
+            logger.exception(f"獲取股票 {stock_code} 名稱時發生錯誤")
         return None
 
 # 使用示例
