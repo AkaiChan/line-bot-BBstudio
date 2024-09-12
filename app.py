@@ -161,16 +161,9 @@ def handle_message(event):
                     line_bot_api.reply_message(event.reply_token, flex_message)
                     return
                 elif user_message.startswith("stock"):
-                    logger.debug("處理股票信息請求")
-                    parts = user_message.split()
-                    if len(parts) < 2:
-                        reply_text = "請提供股票代碼，例如：stock 0050"
-                        logger.debug(f"發送回覆: {reply_text}")
-                        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
-                    else:
-                        stock_code = parts[1]
-                        stock_info = TWStockAPI.get_stock_info(stock_code)
-                        line_bot_api.reply_message(event.reply_token, stock_info)
+                    stock_code = user_message.split()[1]
+                    stock_info = TWStockAPI.get_stock_info(stock_code)
+                    line_bot_api.reply_message(event.reply_token, stock_info)
                     return
                 else:
                     reply_text = user_message
