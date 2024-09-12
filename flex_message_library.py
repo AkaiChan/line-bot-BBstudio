@@ -628,6 +628,29 @@ def create_stock_flex_message(stock_info):
         change_percent = 0
         change_color = "#888888"
 
+    def create_data_row(label, value, color="#111111"):
+        return {
+            "type": "box",
+            "layout": "horizontal",
+            "contents": [
+                {
+                    "type": "text",
+                    "text": label,
+                    "size": "sm",
+                    "color": "#555555",
+                    "flex": 0
+                },
+                {
+                    "type": "text",
+                    "text": value,
+                    "size": "sm",
+                    "color": color,
+                    "align": "end",
+                    "font": "monospace"
+                }
+            ]
+        }
+
     return {
         "type": "bubble",
         "body": {
@@ -661,66 +684,9 @@ def create_stock_flex_message(stock_info):
                             "type": "box",
                             "layout": "vertical",
                             "contents": [
-                                {
-                                    "type": "box",
-                                    "layout": "horizontal",
-                                    "contents": [
-                                        {
-                                            "type": "text",
-                                            "text": "Close",
-                                            "size": "sm",
-                                            "color": "#555555",
-                                            "flex": 0
-                                        },
-                                        {
-                                            "type": "text",
-                                            "text": f"{float(stock_info['收盤價']):.2f}",
-                                            "size": "sm",
-                                            "color": "#111111",
-                                            "align": "end"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "type": "box",
-                                    "layout": "horizontal",
-                                    "contents": [
-                                        {
-                                            "type": "text",
-                                            "text": "Open",
-                                            "size": "sm",
-                                            "color": "#555555",
-                                            "flex": 0
-                                        },
-                                        {
-                                            "type": "text",
-                                            "text": f"{float(stock_info['開盤價']):.2f}",
-                                            "size": "sm",
-                                            "color": "#111111",
-                                            "align": "end"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "type": "box",
-                                    "layout": "horizontal",
-                                    "contents": [
-                                        {
-                                            "type": "text",
-                                            "text": "High",
-                                            "size": "sm",
-                                            "color": "#555555",
-                                            "flex": 0
-                                        },
-                                        {
-                                            "type": "text",
-                                            "text": f"{float(stock_info['最高價']):.2f}",
-                                            "size": "sm",
-                                            "color": "#111111",
-                                            "align": "end"
-                                        }
-                                    ]
-                                }
+                                create_data_row("Close", f"{float(stock_info['收盤價']):8.2f}"),
+                                create_data_row("Open", f"{float(stock_info['開盤價']):8.2f}"),
+                                create_data_row("High", f"{float(stock_info['最高價']):8.2f}")
                             ],
                             "flex": 1
                         },
@@ -732,66 +698,9 @@ def create_stock_flex_message(stock_info):
                             "type": "box",
                             "layout": "vertical",
                             "contents": [
-                                {
-                                    "type": "box",
-                                    "layout": "horizontal",
-                                    "contents": [
-                                        {
-                                            "type": "text",
-                                            "text": "Change",
-                                            "size": "sm",
-                                            "color": "#555555",
-                                            "flex": 0
-                                        },
-                                        {
-                                            "type": "text",
-                                            "text": f"{change:.2f}",
-                                            "size": "sm",
-                                            "color": change_color,
-                                            "align": "end"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "type": "box",
-                                    "layout": "horizontal",
-                                    "contents": [
-                                        {
-                                            "type": "text",
-                                            "text": "Change%",
-                                            "size": "sm",
-                                            "color": "#555555",
-                                            "flex": 0
-                                        },
-                                        {
-                                            "type": "text",
-                                            "text": f"{change_percent:.2f}%",
-                                            "size": "sm",
-                                            "color": change_color,
-                                            "align": "end"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "type": "box",
-                                    "layout": "horizontal",
-                                    "contents": [
-                                        {
-                                            "type": "text",
-                                            "text": "Low",
-                                            "size": "sm",
-                                            "color": "#555555",
-                                            "flex": 0
-                                        },
-                                        {
-                                            "type": "text",
-                                            "text": f"{float(stock_info['最低價']):.2f}",
-                                            "size": "sm",
-                                            "color": "#111111",
-                                            "align": "end"
-                                        }
-                                    ]
-                                }
+                                create_data_row("Change", f"{change:8.2f}", change_color),
+                                create_data_row("Change%", f"{change_percent:7.2f}%", change_color),
+                                create_data_row("Low", f"{float(stock_info['最低價']):8.2f}")
                             ],
                             "flex": 1
                         }
@@ -801,27 +710,7 @@ def create_stock_flex_message(stock_info):
                     "type": "separator",
                     "margin": "xxl"
                 },
-                {
-                    "type": "box",
-                    "layout": "horizontal",
-                    "margin": "md",
-                    "contents": [
-                        {
-                            "type": "text",
-                            "text": "Volume",
-                            "size": "sm",
-                            "color": "#555555",
-                            "flex": 0
-                        },
-                        {
-                            "type": "text",
-                            "text": f"{int(stock_info['成交股數']):,}",
-                            "size": "sm",
-                            "color": "#111111",
-                            "align": "end"
-                        }
-                    ]
-                }
+                create_data_row("Volume", f"{int(stock_info['成交股數']):,}")
             ]
         }
     }
