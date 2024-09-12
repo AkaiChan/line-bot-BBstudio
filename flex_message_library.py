@@ -620,18 +620,11 @@ logger = logging.getLogger(__name__)
 def create_stock_flex_message(stock_info):
     logger.debug(f"創建股票 Flex Message，輸入數據: {stock_info}")
     try:
-        # 檢查所有必要的鍵是否存在，如果不存在則使用默認值
-        stock_code = stock_info.get("股票代碼", "未知")
-        stock_name = stock_info.get("股票名稱", "未知")
-        date = stock_info.get("日期", "N/A")
-        closing_price = stock_info.get("收盤價", "N/A")
-        change = stock_info.get("漲跌價差", "N/A")
-        opening_price = stock_info.get("開盤價", "N/A")
-        highest_price = stock_info.get("最高價", "N/A")
-        lowest_price = stock_info.get("最低價", "N/A")
-        trade_volume = stock_info.get("成交股數", "N/A")
-        trade_value = stock_info.get("成交金額", "N/A")
-        transaction = stock_info.get("成交筆數", "N/A")
+        # 檢查所有必要的鍵是否存在
+        required_keys = ["股票代碼", "日期", "成交股數", "成交金額", "開盤價", "最高價", "最低價", "收盤價", "漲跌價差", "成交筆數"]
+        for key in required_keys:
+            if key not in stock_info:
+                raise KeyError(f"缺少必要的鍵: {key}")
 
         # 創建 Flex Message
         flex_content = {
