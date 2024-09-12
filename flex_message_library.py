@@ -663,7 +663,7 @@ def create_stock_flex_message(stock_info):
                             "contents": [
                                 {
                                     "type": "text",
-                                    "text": "收盤價",
+                                    "text": "Closing Price",
                                     "size": "sm",
                                     "color": "#555555",
                                     "flex": 0
@@ -683,7 +683,7 @@ def create_stock_flex_message(stock_info):
                             "contents": [
                                 {
                                     "type": "text",
-                                    "text": "漲跌",
+                                    "text": "Change",
                                     "size": "sm",
                                     "color": "#555555",
                                     "flex": 0
@@ -703,7 +703,7 @@ def create_stock_flex_message(stock_info):
                             "contents": [
                                 {
                                     "type": "text",
-                                    "text": "開盤價",
+                                    "text": "Opening Price",
                                     "size": "sm",
                                     "color": "#555555",
                                     "flex": 0
@@ -723,7 +723,7 @@ def create_stock_flex_message(stock_info):
                             "contents": [
                                 {
                                     "type": "text",
-                                    "text": "最高價",
+                                    "text": "Highest Price",
                                     "size": "sm",
                                     "color": "#555555",
                                     "flex": 0
@@ -743,7 +743,7 @@ def create_stock_flex_message(stock_info):
                             "contents": [
                                 {
                                     "type": "text",
-                                    "text": "最低價",
+                                    "text": "Lowest Price",
                                     "size": "sm",
                                     "color": "#555555",
                                     "flex": 0
@@ -763,7 +763,7 @@ def create_stock_flex_message(stock_info):
                             "contents": [
                                 {
                                     "type": "text",
-                                    "text": "成交股數",
+                                    "text": "Trading Volume",
                                     "size": "sm",
                                     "color": "#555555",
                                     "flex": 0
