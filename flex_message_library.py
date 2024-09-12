@@ -662,18 +662,138 @@ def create_stock_flex_message(stock_info):
                             "layout": "horizontal",
                             "contents": [
                                 {
-                                    "type": "text",
-                                    "text": "Closing Price",
-                                    "size": "sm",
-                                    "color": "#555555",
-                                    "flex": 0
+                                    "type": "box",
+                                    "layout": "vertical",
+                                    "contents": [
+                                        {
+                                            "type": "box",
+                                            "layout": "horizontal",
+                                            "contents": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "Close",
+                                                    "size": "sm",
+                                                    "color": "#555555",
+                                                    "flex": 0
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": stock_info['收盤價'],
+                                                    "size": "sm",
+                                                    "color": "#111111",
+                                                    "align": "end"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "box",
+                                            "layout": "horizontal",
+                                            "contents": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "Open",
+                                                    "size": "sm",
+                                                    "color": "#555555",
+                                                    "flex": 0
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": stock_info['開盤價'],
+                                                    "size": "sm",
+                                                    "color": "#111111",
+                                                    "align": "end"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "box",
+                                            "layout": "horizontal",
+                                            "contents": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "High",
+                                                    "size": "sm",
+                                                    "color": "#555555",
+                                                    "flex": 0
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": stock_info['最高價'],
+                                                    "size": "sm",
+                                                    "color": "#111111",
+                                                    "align": "end"
+                                                }
+                                            ]
+                                        }
+                                    ],
+                                    "flex": 1
                                 },
                                 {
-                                    "type": "text",
-                                    "text": stock_info['收盤價'],
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "align": "end"
+                                    "type": "box",
+                                    "layout": "vertical",
+                                    "contents": [
+                                        {
+                                            "type": "box",
+                                            "layout": "horizontal",
+                                            "contents": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "Change",
+                                                    "size": "sm",
+                                                    "color": "#555555",
+                                                    "flex": 0
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": f"{change:.2f}",
+                                                    "size": "sm",
+                                                    "color": change_color,
+                                                    "align": "end"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "box",
+                                            "layout": "horizontal",
+                                            "contents": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "Change%",
+                                                    "size": "sm",
+                                                    "color": "#555555",
+                                                    "flex": 0
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": f"{change_percent:.2f}%",
+                                                    "size": "sm",
+                                                    "color": change_color,
+                                                    "align": "end"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "box",
+                                            "layout": "horizontal",
+                                            "contents": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "Low",
+                                                    "size": "sm",
+                                                    "color": "#555555",
+                                                    "flex": 0
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": stock_info['最低價'],
+                                                    "size": "sm",
+                                                    "color": "#111111",
+                                                    "align": "end"
+                                                }
+                                            ]
+                                        }
+                                    ],
+                                    "flex": 1
                                 }
                             ]
                         },
@@ -683,87 +803,7 @@ def create_stock_flex_message(stock_info):
                             "contents": [
                                 {
                                     "type": "text",
-                                    "text": "Change",
-                                    "size": "sm",
-                                    "color": "#555555",
-                                    "flex": 0
-                                },
-                                {
-                                    "type": "text",
-                                    "text": f"{change:.2f} ({change_percent:.2f}%)",
-                                    "size": "sm",
-                                    "color": change_color,
-                                    "align": "end"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "Opening Price",
-                                    "size": "sm",
-                                    "color": "#555555",
-                                    "flex": 0
-                                },
-                                {
-                                    "type": "text",
-                                    "text": stock_info['開盤價'],
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "align": "end"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "Highest Price",
-                                    "size": "sm",
-                                    "color": "#555555",
-                                    "flex": 0
-                                },
-                                {
-                                    "type": "text",
-                                    "text": stock_info['最高價'],
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "align": "end"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "Lowest Price",
-                                    "size": "sm",
-                                    "color": "#555555",
-                                    "flex": 0
-                                },
-                                {
-                                    "type": "text",
-                                    "text": stock_info['最低價'],
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "align": "end"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "Trading Volume",
+                                    "text": "Volume",
                                     "size": "sm",
                                     "color": "#555555",
                                     "flex": 0
