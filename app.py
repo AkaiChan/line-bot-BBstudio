@@ -44,6 +44,7 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     user_message = event.message.text.strip()
+    logger.debug(f"收到用戶消息: {user_message}")
     
     if '|' in user_message:
         # 分割訊息並儲存到資料庫
@@ -169,22 +170,17 @@ def handle_message(event):
                     else:
                         stock_code = parts[1]
                         logger.debug(f"獲取股票代碼: {stock_code}")
-                        try:
-                            stock_info = TWStockAPI.get_stock_info(stock_code)
-                            logger.debug(f"獲取到的股票信息: {stock_info}")
-                            if isinstance(stock_info, dict) and "error" in stock_info:
-                                error_message = stock_info["error"]
-                                logger.debug(f"發送錯誤信息: {error_message}")
-                                line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"抱歉，{error_message}"))
-                            else:
-                                logger.debug("創建 Flex Message")
-                                flex_message = create_stock_flex_message(stock_info)
-                                logger.debug("發送 Flex Message")
-                                line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"股票 {stock_code} 信息", contents=flex_message))
-                        except Exception as e:
-                            logger.exception("處理股票信息時發生錯誤")
-                            error_message = f"處理股票 {stock_code} 信息時發生錯誤：{str(e)}"
-                            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=error_message))
+                        stock_info = TWStockAPI.get_stock_info(stock_code)
+                        logger.debug(f"獲取到的股票信息: {stock_info}")
+                        if isinstance(stock_info, dict) and "error" in stock_info:
+                            error_message = stock_info["error"]
+                            logger.debug(f"發送錯誤信息: {error_message}")
+                            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"抱歉，{error_message}"))
+                        else:
+                            logger.debug("創建 Flex Message")
+                            flex_message = create_stock_flex_message(stock_info)
+                            logger.debug("發送 Flex Message")
+                            line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"股票 {stock_code} 信息", contents=flex_message))
                     logger.debug("股票信息處理完成")
                     return
                 else:
