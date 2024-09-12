@@ -23,28 +23,28 @@ class TWStockAPI:
             data = response.json()
             
             if data['stat'] != 'OK':
-                return f"獲取股票 {stock_code} 信息失敗：{data['stat']}"
+                return {"error": f"獲取股票 {stock_code} 信息失敗：{data['stat']}"}
 
             latest_data = data['data'][-1]  # 獲取最新的一天數據
             
-            return (
-                f"股票代碼：{stock_code}\n"
-                f"日期：{latest_data[0]}\n"
-                f"成交股數：{latest_data[1]}\n"
-                f"成交金額：{latest_data[2]}\n"
-                f"開盤價：{latest_data[3]}\n"
-                f"最高價：{latest_data[4]}\n"
-                f"最低價：{latest_data[5]}\n"
-                f"收盤價：{latest_data[6]}\n"
-                f"漲跌價差：{latest_data[7]}\n"
-                f"成交筆數：{latest_data[8]}"
-            )
+            return {
+                "股票代碼": stock_code,
+                "日期": latest_data[0],
+                "成交股數": latest_data[1],
+                "成交金額": latest_data[2],
+                "開盤價": latest_data[3],
+                "最高價": latest_data[4],
+                "最低價": latest_data[5],
+                "收盤價": latest_data[6],
+                "漲跌價差": latest_data[7],
+                "成交筆數": latest_data[8]
+            }
         except requests.RequestException as e:
             logger.exception(f"獲取股票 {stock_code} 信息時發生網絡錯誤")
-            return f"獲取股票 {stock_code} 信息時發生網絡錯誤：{str(e)}"
+            return {"error": f"獲取股票 {stock_code} 信息時發生網絡錯誤：{str(e)}"}
         except Exception as e:
             logger.exception(f"獲取股票 {stock_code} 信息時發生未知錯誤")
-            return f"獲取股票 {stock_code} 信息時發生未知錯誤：{str(e)}"
+            return {"error": f"獲取股票 {stock_code} 信息時發生未知錯誤：{str(e)}"}
 
 # 使用示例
 if __name__ == "__main__":
