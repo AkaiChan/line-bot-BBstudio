@@ -58,43 +58,53 @@ class TWStockAPI:
 
     @staticmethod
     def create_happy_5_lines_chart(stock_code):
-        # 獲取股票數據
-        end_date = datetime.now()
-        start_date = end_date - timedelta(days=365)  # 獲取一年的數據
-        stock = yf.Ticker(f"{stock_code}.TW")
-        df = stock.history(start=start_date, end=end_date)
+        logger.info(f"開始為股票 {stock_code} 創建樂活五線譜")
+        try:
+            # 獲取股票數據
+            end_date = datetime.now()
+            start_date = end_date - timedelta(days=365)
+            stock = yf.Ticker(f"{stock_code}.TW")
+            df = stock.history(start=start_date, end=end_date)
+            logger.info(f"成功獲取股票 {stock_code} 的歷史數據，共 {len(df)} 條記錄")
 
-        # 計算均線
-        df['MA5'] = df['Close'].rolling(window=5).mean()
-        df['MA20'] = df['Close'].rolling(window=20).mean()
-        df['MA60'] = df['Close'].rolling(window=60).mean()
+            # 計算均線
+            df['MA5'] = df['Close'].rolling(window=5).mean()
+            df['MA20'] = df['Close'].rolling(window=20).mean()
+            df['MA60'] = df['Close'].rolling(window=60).mean()
 
-        # 設置圖表樣式
-        mc = mpf.make_marketcolors(up='r', down='g', inherit=True)
-        s = mpf.make_mpf_style(marketcolors=mc)
+            # 設置圖表樣式
+            mc = mpf.make_marketcolors(up='r', down='g', inherit=True)
+            s = mpf.make_mpf_style(marketcolors=mc)
 
-        # 創建圖表
-        fig, axes = mpf.plot(df, type='candle', style=s, volume=True, returnfig=True)
+            # 創建圖表
+            fig, axes = mpf.plot(df, type='candle', style=s, volume=True, returnfig=True)
+            logger.info("成功創建基本圖表")
 
-        # 添加均線
-        axes[0].plot(df.index, df['MA5'], label='MA5', color='blue')
-        axes[0].plot(df.index, df['MA20'], label='MA20', color='orange')
-        axes[0].plot(df.index, df['MA60'], label='MA60', color='purple')
+            # 添加均線
+            axes[0].plot(df.index, df['MA5'], label='MA5', color='blue')
+            axes[0].plot(df.index, df['MA20'], label='MA20', color='orange')
+            axes[0].plot(df.index, df['MA60'], label='MA60', color='purple')
 
-        # 添加圖例
-        axes[0].legend()
+            # 添加圖例
+            axes[0].legend()
 
-        # 設置標題
-        plt.title(f"{stock_code} 樂活五線譜")
+            # 設置標題
+            plt.title(f"{stock_code} 樂活五線譜")
+            logger.info("成功添加均線和圖例")
 
-        # 將圖表轉換為 base64 編碼的字符串
-        buffer = BytesIO()
-        plt.savefig(buffer, format='png')
-        buffer.seek(0)
-        image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
-        plt.close()
+            # 將圖表轉換為 base64 編碼的字符串
+            buffer = BytesIO()
+            plt.savefig(buffer, format='png', dpi=300, bbox_inches='tight')
+            buffer.seek(0)
+            image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+            plt.close()
 
-        return image_base64
+            logger.info(f"成功將圖表轉換為 base64 字符串，長度為 {len(image_base64)}")
+            return image_base64
+
+        except Exception as e:
+            logger.error(f"創建樂活五線譜時發生錯誤: {str(e)}", exc_info=True)
+            raise
 
 # 使用示例
 if __name__ == "__main__":
