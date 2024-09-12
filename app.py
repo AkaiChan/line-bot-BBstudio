@@ -178,6 +178,7 @@ def handle_message(event):
                     )
                     return
                 elif user_message.startswith("chart"):
+                    stock_code = user_message.split()[1]
                     image_base64 = TWStockAPI.create_happy_5_lines_chart(stock_code)
                     
                     # 將 base64 圖片數據解碼並保存為文件
