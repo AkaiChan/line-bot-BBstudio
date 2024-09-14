@@ -60,8 +60,6 @@ def handle_message(event):
     
     member = member_system.get_member(user_id)
     logger.debug(f"收到用戶消息: {user_message}")
-    
-    member = member_system.get_member(user_id)
     if not member:
         member_system.register_member(user_id, profile.display_name)
     else:
