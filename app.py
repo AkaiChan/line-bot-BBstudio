@@ -54,10 +54,10 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    user_message = event.message.text.strip()
+    user_id = event.source.user_id
+    profile = line_bot_api.get_profile(user_id)
     try:
-        user_message = event.message.text.strip()
-        user_id = event.source.user_id
-        profile = line_bot_api.get_profile(user_id)
         member = member_system.get_member(user_id)
         logger.debug(f"收到用戶消息: {user_message}")
         if not member:
