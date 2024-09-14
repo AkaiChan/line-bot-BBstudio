@@ -718,22 +718,6 @@ def create_stock_flex_message(stock_info):
         }
     }
 def create_member_info_flex_message(member_info):
-    if isinstance(member_info, str):
-        return {
-            "type": "bubble",
-            "body": {
-                "type": "box",
-                "layout": "vertical",
-                "contents": [
-                    {
-                        "type": "text",
-                        "text": member_info,
-                        "wrap": True
-                    }
-                ]
-            }
-        }
-
     return {
         "type": "bubble",
         "body": {
