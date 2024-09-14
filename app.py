@@ -67,6 +67,8 @@ def handle_message(event):
     except Exception as e:
         print(f"會員讀取錯誤: {e}")
         reply_text = "會員讀取錯誤: {e}"
+        message = TextSendMessage(text=reply_text)
+        line_bot_api.reply_message(event.reply_token, message)
 
     if '|' in user_message:
         # 分割訊息並儲存到資料庫
