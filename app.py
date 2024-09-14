@@ -12,11 +12,14 @@ import os
 import logging
 import tempfile
 import base64
+from line_member_system import LineMemberSystem
+
 
 app = Flask(__name__)
 
 line_bot_api = LineBotApi(os.environ['CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(os.environ['CHANNEL_SECRET'])
+member_system = LineMemberSystem()
 OPENWEATHER_API_KEY = os.environ['OPENWEATHER_API_KEY']  # 請確保設置這個環境變數
 
 # 資料庫連接函數
@@ -52,8 +55,18 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     user_message = event.message.text.strip()
+    user_id = event.source.user_id
+    profile = line_bot_api.get_profile(user_id)
+    
+    member = member_system.get_member(user_id)
     logger.debug(f"收到用戶消息: {user_message}")
     
+    member = member_system.get_member(user_id)
+    if not member:
+        member_system.register_member(user_id, profile.display_name)
+    else:
+        member_system.update_last_interaction(user_id)
+
     if '|' in user_message:
         # 分割訊息並儲存到資料庫
         call, response = user_message.split('|', 1)
@@ -90,7 +103,7 @@ def handle_message(event):
                 elif "天氣" in user_message:
                     city = "台北"  # 預設城市，您可以根據需要修改
                     reply_text = get_weather(city)
-                elif user_message == "flexmessage":
+                elif user_message.lower().strip() == "flexmessage":
                     bubble1 = create_bubble("In Progress", 70, "Buy milk and lettuce before class", {"background": "#27ACB2", "bar": "#0D8186"})
                     bubble2 = create_bubble("Pending", 30, "Wash my car", {"background": "#FF6B6E", "bar": "#DE5658"})
                     bubble3 = create_bubble("In Progress", 100, "Buy milk and lettuce before class", {"background": "#A17DF5", "bar": "#7D51E4"})
@@ -100,7 +113,7 @@ def handle_message(event):
                     flex_message = FlexSendMessage(alt_text="Task Progress", contents=carousel)
                     line_bot_api.reply_message(event.reply_token, flex_message)
                     return
-                elif user_message == "ticket":
+                elif user_message.lower().strip() == "ticket":
                     ticket_flex = create_ticket_flex_message(
                         title="BROWN'S ADVENTURE\nIN MOVIE",
                         rating="4.0",
@@ -113,7 +126,7 @@ def handle_message(event):
                     flex_message = FlexSendMessage(alt_text="Movie Ticket", contents=ticket_flex)
                     line_bot_api.reply_message(event.reply_token, flex_message)
                     return
-                elif user_message == "shopping":
+                elif user_message.lower().strip() == "shopping":
                     items = [
                         {
                             "name": "Arm Chair, White",
@@ -131,7 +144,7 @@ def handle_message(event):
                     flex_message = FlexSendMessage(alt_text="Shopping List", contents=shopping_flex)
                     line_bot_api.reply_message(event.reply_token, flex_message)
                     return
-                elif user_message == "transit":
+                elif user_message.lower().strip() == "transit":
                     route = [
                         {"time": "20:30", "station": "Akihabara", "color": "#EF454D", "transit": "Walk 4min"},
                         {"time": "20:34", "station": "Ochanomizu", "color": "#6486E3", "transit": "Metro 1hr"},
@@ -146,7 +159,7 @@ def handle_message(event):
                     flex_message = FlexSendMessage(alt_text="Transit Route", contents=transit_flex)
                     line_bot_api.reply_message(event.reply_token, flex_message)
                     return
-                elif user_message == "receipt":
+                elif user_message.lower().strip() == "receipt":
                     items = [
                         {"name": "Energy Drink", "price": 2.99},
                         {"name": "Chewing Gum", "price": 0.99},
@@ -168,7 +181,7 @@ def handle_message(event):
                     flex_message = FlexSendMessage(alt_text="Receipt", contents=receipt_flex)
                     line_bot_api.reply_message(event.reply_token, flex_message)
                     return
-                elif user_message.startswith("stock"):
+                elif user_message.lower().strip().startswith("stock"):
                     stock_code = user_message.split()[1]
                     stock_info = TWStockAPI.get_stock_info(stock_code)
                     flex_message = create_stock_flex_message(stock_info)
@@ -196,6 +209,12 @@ def handle_message(event):
                         ImageSendMessage(original_content_url=image_url, preview_image_url=image_url)
                     )
                     return
+                elif user_message == "我的資訊":
+                    flex_message = member_system.get_member_info_flex_message(member)
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        FlexSendMessage(alt_text="會員資訊", contents=flex_message)
+                    )
                 else:
                     reply_text = user_message
         except Exception as e:
