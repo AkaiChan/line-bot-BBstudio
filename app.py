@@ -214,11 +214,10 @@ def handle_message(event):
                     )
                     return
                 elif user_message == "我的資訊":
-                    flex_message = member_system.get_member_info_flex_message(member)
-                    line_bot_api.reply_message(
-                        event.reply_token,
-                        FlexSendMessage(alt_text="會員資訊", contents=flex_message)
-                    )
+                    reply_text = process_user_message(user_message, member, profile.display_name)
+        
+                    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+                    return
                 else:
                     reply_text = user_message
         except Exception as e:
@@ -227,6 +226,32 @@ def handle_message(event):
     
     message = TextSendMessage(text=reply_text)
     line_bot_api.reply_message(event.reply_token, message)
+
+def process_user_message(user_message, member, display_name):
+    logger.debug(f"收到用戶消息: {user_message}")
+    
+    if user_message == "我的資訊":
+        return format_member_info(member)
+    elif user_message == "加分":
+        member_system.add_points(member[0], 10)
+        return "恭喜獲得 10 積分！"
+    elif user_message == "hi":
+        return f"你好，{display_name}！有什麼我可以幫助你的嗎？"
+    else:
+        return f"歡迎，{display_name}！你可以輸入「我的資訊」來查看會員資訊，「加分」來獲得積分，或者只是說「hi」來打個招呼。"
+
+def format_member_info(member):
+    if not member:
+        return "您還不是會員。"
+    
+    id, line_user_id, display_name, status, created_at, last_interaction, points = member
+    
+    return f"""會員資訊：
+顯示名稱：{display_name}
+狀態：{status}
+註冊日期：{created_at.strftime('%Y-%m-%d')}
+最後互動：{last_interaction.strftime('%Y-%m-%d %H:%M')}
+積分：{points}"""
 
 import os
 if __name__ == "__main__":

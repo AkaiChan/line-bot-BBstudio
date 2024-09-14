@@ -1,7 +1,6 @@
 from datetime import datetime
 
 import psycopg2
-from flex_message_library import create_member_info_flex_message
 from database_utils import get_connection # type: ignore
 
 class LineMemberSystem:
@@ -89,6 +88,3 @@ class LineMemberSystem:
             "points": points
         }
 
-    def get_member_info_flex_message(self, member):
-        member_info = self.format_member_info(member)
-        return create_member_info_flex_message(member_info)
