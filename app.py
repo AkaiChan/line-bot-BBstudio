@@ -12,14 +12,12 @@ import os
 import logging
 import tempfile
 import base64
-from line_member_system import LineMemberSystem
 
 
 app = Flask(__name__)
 
 line_bot_api = LineBotApi(os.environ['CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(os.environ['CHANNEL_SECRET'])
-member_system = LineMemberSystem()
 OPENWEATHER_API_KEY = os.environ['OPENWEATHER_API_KEY']  # 請確保設置這個環境變數
 
 # 資料庫連接函數
@@ -57,19 +55,6 @@ def handle_message(event):
     user_message = event.message.text.strip()
     user_id = event.source.user_id
     profile = line_bot_api.get_profile(user_id)
-    try:
-        member = member_system.get_member(user_id)
-        logger.debug(f"收到用戶消息: {user_message}")
-        if not member:
-            member_system.register_member(user_id, profile.display_name)
-        else:
-            member_system.update_last_interaction(user_id)
-    except Exception as e:
-        print(f"會員讀取錯誤: {e}")
-        reply_text = "會員讀取錯誤: {e}"
-        message = TextSendMessage(text=reply_text)
-        line_bot_api.reply_message(event.reply_token, message)
-        return
 
     if '|' in user_message:
         # 分割訊息並儲存到資料庫
@@ -213,11 +198,6 @@ def handle_message(event):
                         ImageSendMessage(original_content_url=image_url, preview_image_url=image_url)
                     )
                     return
-                elif user_message == "我的資訊":
-                    reply_text = process_user_message(user_message, member, profile.display_name)
-        
-                    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
-                    return
                 else:
                     reply_text = user_message
         except Exception as e:
@@ -226,32 +206,6 @@ def handle_message(event):
     
     message = TextSendMessage(text=reply_text)
     line_bot_api.reply_message(event.reply_token, message)
-
-def process_user_message(user_message, member, display_name):
-    logger.debug(f"收到用戶消息: {user_message}")
-    
-    if user_message == "我的資訊":
-        return format_member_info(member)
-    elif user_message == "加分":
-        member_system.add_points(member[0], 10)
-        return "恭喜獲得 10 積分！"
-    elif user_message == "hi":
-        return f"你好，{display_name}！有什麼我可以幫助你的嗎？"
-    else:
-        return f"歡迎，{display_name}！你可以輸入「我的資訊」來查看會員資訊，「加分」來獲得積分，或者只是說「hi」來打個招呼。"
-
-def format_member_info(member):
-    if not member:
-        return "您還不是會員。"
-    
-    id, line_user_id, display_name, status, created_at, last_interaction, points = member
-    
-    return f"""會員資訊：
-顯示名稱：{display_name}
-狀態：{status}
-註冊日期：{created_at.strftime('%Y-%m-%d')}
-最後互動：{last_interaction.strftime('%Y-%m-%d %H:%M')}
-積分：{points}"""
 
 import os
 if __name__ == "__main__":
