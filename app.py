@@ -57,13 +57,16 @@ def handle_message(event):
     user_message = event.message.text.strip()
     user_id = event.source.user_id
     profile = line_bot_api.get_profile(user_id)
-    
-    member = member_system.get_member(user_id)
-    logger.debug(f"收到用戶消息: {user_message}")
-    if not member:
-        member_system.register_member(user_id, profile.display_name)
-    else:
-        member_system.update_last_interaction(user_id)
+    try:
+        member = member_system.get_member(user_id)
+        logger.debug(f"收到用戶消息: {user_message}")
+        if not member:
+            member_system.register_member(user_id, profile.display_name)
+        else:
+            member_system.update_last_interaction(user_id)
+    except Exception as e:
+        print(f"會員讀取錯誤: {e}")
+        reply_text = "會員讀取錯誤: {e}"
 
     if '|' in user_message:
         # 分割訊息並儲存到資料庫
