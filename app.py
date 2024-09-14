@@ -54,10 +54,10 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    user_message = event.message.text.strip()
-    user_id = event.source.user_id
-    profile = line_bot_api.get_profile(user_id)
     try:
+        user_message = event.message.text.strip()
+        user_id = event.source.user_id
+        profile = line_bot_api.get_profile(user_id)
         member = member_system.get_member(user_id)
         logger.debug(f"收到用戶消息: {user_message}")
         if not member:
@@ -69,6 +69,7 @@ def handle_message(event):
         reply_text = "會員讀取錯誤: {e}"
         message = TextSendMessage(text=reply_text)
         line_bot_api.reply_message(event.reply_token, message)
+        return
 
     if '|' in user_message:
         # 分割訊息並儲存到資料庫
