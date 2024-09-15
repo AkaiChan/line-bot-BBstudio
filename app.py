@@ -4,7 +4,7 @@ import requests
 import psycopg2
 from flask import Flask, json, request, abort
 from linebot import LineBotApi, WebhookHandler
-from linebot.exceptions import InvalidSignatureError
+from linebot.exceptions import InvalidSignatureError, LineBotApiError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage, FlexSendMessage, ImageSendMessage
 from flex_message_library import create_bubble, create_carousel, create_receipt_flex_message, create_shopping_list_flex_message, create_stock_flex_message, create_ticket_flex_message, create_transit_flex_message
 from stock_api import TWStockAPI  
@@ -199,13 +199,22 @@ def handle_message(event):
                     )
                     return
                 else:
-                    reply_text = user_message
+                    user_profile = get_user_profile(user_id)
+                    reply_text = f"您的訊息是：{user_message}\n\n用戶資訊：\n用戶ID：{user_id}\n名稱：{user_profile.display_name}\n狀態消息：{user_profile.status_message}\n個人頭像URL：{user_profile.picture_url}"
+                    
         except Exception as e:
             print(f"資料庫查詢錯誤: {e}")
             reply_text = "查詢失敗，請稍後再試。"
     
     message = TextSendMessage(text=reply_text)
     line_bot_api.reply_message(event.reply_token, message)
+
+def get_user_profile(user_id):
+    try:
+        return line_bot_api.get_profile(user_id)
+    except LineBotApiError as e:
+        logger.error(f"獲取用戶資料失敗: {str(e)}")
+        raise
 
 import os
 if __name__ == "__main__":
