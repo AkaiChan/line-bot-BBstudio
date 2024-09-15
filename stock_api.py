@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import mplfinance as mpf
 from io import BytesIO
 import base64
+import pandas as pd
+from io import StringIO
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -55,6 +57,37 @@ class TWStockAPI:
         except Exception as e:
             logger.exception(f"獲取股票 {stock_code} 信息時發生錯誤")
             return {"error": f"獲取股票 {stock_code} 信息時發生錯誤：{str(e)}"}
+
+    @staticmethod
+    def get_happy_5_lines(stock_code):
+        url = f"https://www.twse.com.tw/exchangeReport/STOCK_DAY?response=csv&date=20230501&stockNo={stock_code}"
+        response = requests.get(url)
+        df = pd.read_csv(StringIO(response.text), skiprows=1, header=None)
+        
+        # 假設收盤價在第7列（索引6）
+        close_prices = df.iloc[:, 6].astype(float)
+        
+        # 計算5日、10日、20日、60日和120日移動平均線
+        ma5 = close_prices.rolling(window=5).mean()
+        ma10 = close_prices.rolling(window=10).mean()
+        ma20 = close_prices.rolling(window=20).mean()
+        ma60 = close_prices.rolling(window=60).mean()
+        ma120 = close_prices.rolling(window=120).mean()
+        
+        # 獲取最後兩天的數據
+        last_day = len(close_prices) - 1
+        second_last_day = last_day - 1
+        
+        # 判斷位置
+        def get_position(day):
+            lines = [ma5[day], ma10[day], ma20[day], ma60[day], ma120[day]]
+            sorted_lines = sorted(lines)
+            return sorted_lines.index(close_prices[day]) + 1
+        
+        last_position = get_position(last_day)
+        second_last_position = get_position(second_last_day)
+        
+        return last_position, second_last_position
 
     @staticmethod
     def create_happy_5_lines_chart(stock_code):
