@@ -6,6 +6,7 @@ from flask import Flask, json, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage, FlexSendMessage, ImageSendMessage
+from line_member_system import LineMemberSystem
 from flex_message_library import create_bubble, create_carousel, create_receipt_flex_message, create_shopping_list_flex_message, create_stock_flex_message, create_ticket_flex_message, create_transit_flex_message
 from stock_api import TWStockAPI  
 import os
@@ -19,6 +20,7 @@ app = Flask(__name__)
 line_bot_api = LineBotApi(os.environ['CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(os.environ['CHANNEL_SECRET'])
 OPENWEATHER_API_KEY = os.environ['OPENWEATHER_API_KEY']  # 請確保設置這個環境變數
+member_system = LineMemberSystem()
 
 # 資料庫連接函數
 def get_connection():
@@ -54,7 +56,8 @@ def callback():
 def handle_message(event):
     user_message = event.message.text.strip()
     user_id = event.source.user_id
-    profile = line_bot_api.get_profile(user_id)
+    profile = get_user_profile(user_id)
+    member = get_or_create_member(user_id, profile.display_name)
 
     if '|' in user_message:
         # 分割訊息並儲存到資料庫
@@ -215,6 +218,16 @@ def get_user_profile(user_id):
     except LineBotApiError as e:
         logger.error(f"獲取用戶資料失敗: {str(e)}")
         raise
+
+def get_or_create_member(user_id, display_name):
+    member = member_system.get_member(user_id)
+    if not member:
+        member_system.register_member(user_id, display_name)
+        logger.info(f"新會員註冊: {display_name}")
+        member = member_system.get_member(user_id)
+    else:
+        member_system.update_last_interaction(user_id)
+    return member
 
 import os
 if __name__ == "__main__":
