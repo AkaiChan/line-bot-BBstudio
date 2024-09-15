@@ -713,29 +713,7 @@ def create_stock_flex_message(stock_info):
                     "type": "separator",
                     "margin": "xxl"
                 },
-                create_data_row("Volume", f"{int(stock_info['成交股數']):,}"),
-                {
-                    "type": "box",
-                    "layout": "baseline",
-                    "spacing": "sm",
-                    "contents": [
-                        {
-                            "type": "text",
-                            "text": "樂活五線譜",
-                            "color": "#aaaaaa",
-                            "size": "sm",
-                            "flex": 1
-                        },
-                        {
-                            "type": "text",
-                            "text": f"{stock_info['happy_5_lines']}",
-                            "wrap": True,
-                            "color": "#666666",
-                            "size": "sm",
-                            "flex": 5
-                        }
-                    ]
-                }
+                create_data_row("Volume", f"{int(stock_info['成交股數']):,}")
             ]
         }
     }
