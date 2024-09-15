@@ -66,7 +66,7 @@ class LineMemberSystem:
                     "contents": [
                         {
                             "type": "text",
-                            "text": "You are not a member yet",
+                            "text": "Not a member",
                             "weight": "bold",
                             "size": "xl"
                         }
@@ -84,7 +84,7 @@ class LineMemberSystem:
                 "contents": [
                     {
                         "type": "text",
-                        "text": "Member Information",
+                        "text": "Member Info",
                         "weight": "bold",
                         "size": "xl"
                     },
@@ -101,7 +101,7 @@ class LineMemberSystem:
                                 "contents": [
                                     {
                                         "type": "text",
-                                        "text": "Display Name",
+                                        "text": "Name",
                                         "color": "#aaaaaa",
                                         "size": "sm",
                                         "flex": 2
@@ -145,7 +145,7 @@ class LineMemberSystem:
                                 "contents": [
                                     {
                                         "type": "text",
-                                        "text": "Registration Date",
+                                        "text": "Reg Date",
                                         "color": "#aaaaaa",
                                         "size": "sm",
                                         "flex": 2
@@ -167,7 +167,7 @@ class LineMemberSystem:
                                 "contents": [
                                     {
                                         "type": "text",
-                                        "text": "Last Interaction",
+                                        "text": "Last Active",
                                         "color": "#aaaaaa",
                                         "size": "sm",
                                         "flex": 2
