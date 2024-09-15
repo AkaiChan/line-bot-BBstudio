@@ -54,11 +54,18 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    user_message = event.message.text.strip()
-    user_id = event.source.user_id
-    profile = get_user_profile(user_id)
-    member = get_or_create_member(user_id, profile.display_name)
-
+    try:
+        user_message = event.message.text.strip()
+        user_id = event.source.user_id
+        profile = get_user_profile(user_id)
+        member = get_or_create_member(user_id, profile.display_name)
+    except Exception as e:
+        logger.error(f"處理消息時發生錯誤: {str(e)}")
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text="抱歉，處理您的請求時發生錯誤。請稍後再試。")
+        )
+        return
     if '|' in user_message:
         # 分割訊息並儲存到資料庫
         call, response = user_message.split('|', 1)
