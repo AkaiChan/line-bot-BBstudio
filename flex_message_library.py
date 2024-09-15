@@ -714,7 +714,7 @@ def create_stock_flex_message(stock_info):
                     "margin": "xxl"
                 },
                 create_data_row("Volume", f"{int(stock_info['成交股數']):,}"),
-                create_data_row("樂活五線譜", stock_info['happy_5_lines'])
+                *([create_data_row("樂活五線譜", stock_info['happy_5_lines'])] if 'happy_5_lines' in stock_info else [])
             ]
         }
     }
