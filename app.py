@@ -177,8 +177,12 @@ def handle_message(event):
                 elif user_message.lower().strip().startswith("stock"):
                     stock_code = user_message.split()[1]
                     stock_info = TWStockAPI.get_stock_info(stock_code)
+                    last_position, second_last_position = TWStockAPI.get_happy_5_lines(stock_code)
+                    stock_info['happy_5_lines'] = f"最新: {last_position}/5, 前一日: {second_last_position}/5"
                     flex_message = create_stock_flex_message(stock_info)
-                    return FlexSendMessage(alt_text=f"股票 {stock_code} 信息", contents=flex_message)
+                    flex_message = FlexSendMessage(alt_text=f"股票 {stock_code} 信息", contents=flex_message)
+                    line_bot_api.reply_message(event.reply_token, flex_message) 
+                    return
                 elif user_message.startswith("chart"):
                     stock_code = user_message.split()[1]
                     image_base64 = TWStockAPI.create_happy_5_lines_chart(stock_code)

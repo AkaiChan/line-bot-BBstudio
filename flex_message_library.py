@@ -713,7 +713,8 @@ def create_stock_flex_message(stock_info):
                     "type": "separator",
                     "margin": "xxl"
                 },
-                create_data_row("Volume", f"{int(stock_info['成交股數']):,}")
+                create_data_row("Volume", f"{int(stock_info['成交股數']):,}"),
+                create_data_row("樂活五線譜", stock_info['happy_5_lines'])
             ]
         }
     }
