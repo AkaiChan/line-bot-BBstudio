@@ -1,4 +1,5 @@
 from datetime import datetime
+import pytz
 
 class LineMemberSystem:
     def __init__(self, get_connection):
@@ -75,6 +76,11 @@ class LineMemberSystem:
             }
 
         id, line_user_id, display_name, status, created_at, last_interaction, points = member
+        
+        # 將時間轉換為台灣時區
+        tw_tz = pytz.timezone('Asia/Taipei')
+        created_at = created_at.replace(tzinfo=pytz.UTC).astimezone(tw_tz)
+        last_interaction = last_interaction.replace(tzinfo=pytz.UTC).astimezone(tw_tz)
         
         return {
             "type": "bubble",

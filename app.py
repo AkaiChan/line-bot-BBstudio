@@ -1,5 +1,7 @@
 import os
 from venv import logger
+import pytz
+from datetime import datetime
 import requests
 import psycopg2
 from flask import Flask, json, request, abort
@@ -221,12 +223,15 @@ def get_user_profile(user_id):
 
 def get_or_create_member(user_id, display_name):
     member = member_system.get_member(user_id)
+    tw_tz = pytz.timezone('Asia/Taipei')
+    current_time = datetime.now(tw_tz)
+    
     if not member:
-        member_system.register_member(user_id, display_name)
+        member_system.register_member(user_id, display_name, current_time)
         logger.info(f"新會員註冊: {display_name}")
         member = member_system.get_member(user_id)
     else:
-        member_system.update_last_interaction(user_id)
+        member_system.update_last_interaction(user_id, current_time)
     return member
 
 def process_user_message(user_message, member, display_name, user_id):
