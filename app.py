@@ -203,8 +203,8 @@ def handle_message(event):
                     )
                     return
                 elif user_message.lower() in ["我的資訊", "member"]:
-                    flex_content = member_system.get_member_info_flex_message(member)
-                    return FlexSendMessage(alt_text="會員資訊", contents=flex_content)
+                    reply = process_user_message(user_message, member, profile.display_name, user_id)
+                    line_bot_api.reply_message(event.reply_token, reply)
                 else:
                     reply_text = f"{user_message}"
                     
@@ -231,6 +231,20 @@ def get_or_create_member(user_id, display_name):
     else:
         member_system.update_last_interaction(user_id)
     return member
+
+def process_user_message(user_message, member, display_name, user_id):
+    logger.debug(f"收到用戶消息: {user_message}")
+    
+    if user_message.lower() in ["我的資訊", "member"]:
+        flex_content = member_system.get_member_info_flex_message(member)
+        return FlexSendMessage(alt_text="會員資訊", contents=flex_content)
+    elif user_message.lower() == "加分":
+        member_system.add_points(member[1], 10)  # 使用 line_user_id
+        return TextSendMessage(text=f"恭喜獲得 10 積分！\nUser ID: {user_id}\n顯示名稱: {display_name}")
+    elif user_message.lower() == "hi":
+        return TextSendMessage(text=f"你好，{display_name}！有什麼我可以幫助你的嗎？\nUser ID: {user_id}\n顯示名稱: {display_name}")
+    else:
+        return TextSendMessage(text=f"您說: {user_message}\nUser ID: {user_id}\n顯示名稱: {display_name}\n\n您可以輸入「我的資訊」或「member」來查看會員資訊，「加分」來獲得積分，或者只是說「hi」來打個招呼。")
 
 import os
 if __name__ == "__main__":
