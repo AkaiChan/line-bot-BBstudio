@@ -202,9 +202,11 @@ def handle_message(event):
                         ImageSendMessage(original_content_url=image_url, preview_image_url=image_url)
                     )
                     return
+                elif user_message.lower() in ["我的資訊", "member"]:
+                    flex_content = member_system.get_member_info_flex_message(member)
+                    return FlexSendMessage(alt_text="會員資訊", contents=flex_content)
                 else:
-                    user_profile = get_user_profile(user_id)
-                    reply_text = f"您的訊息是：{user_message}\n\n用戶資訊：\n用戶ID：{user_id}\n名稱：{user_profile.display_name}\n狀態消息：{user_profile.status_message}\n個人頭像URL：{user_profile.picture_url}"
+                    reply_text = f"{user_message}"
                     
         except Exception as e:
             print(f"資料庫查詢錯誤: {e}")

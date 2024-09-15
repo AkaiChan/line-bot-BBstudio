@@ -56,3 +56,156 @@ class LineMemberSystem:
             "points": points
         }
 
+    def get_member_info_flex_message(self, member):
+        if not member:
+            return {
+                "type": "bubble",
+                "body": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": "You are not a member yet",
+                            "weight": "bold",
+                            "size": "xl"
+                        }
+                    ]
+                }
+            }
+
+        id, line_user_id, display_name, status, created_at, last_interaction, points = member
+        
+        return {
+            "type": "bubble",
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": "Member Information",
+                        "weight": "bold",
+                        "size": "xl"
+                    },
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "margin": "lg",
+                        "spacing": "sm",
+                        "contents": [
+                            {
+                                "type": "box",
+                                "layout": "baseline",
+                                "spacing": "sm",
+                                "contents": [
+                                    {
+                                        "type": "text",
+                                        "text": "Display Name",
+                                        "color": "#aaaaaa",
+                                        "size": "sm",
+                                        "flex": 2
+                                    },
+                                    {
+                                        "type": "text",
+                                        "text": display_name,
+                                        "wrap": True,
+                                        "color": "#666666",
+                                        "size": "sm",
+                                        "flex": 5
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "box",
+                                "layout": "baseline",
+                                "spacing": "sm",
+                                "contents": [
+                                    {
+                                        "type": "text",
+                                        "text": "Status",
+                                        "color": "#aaaaaa",
+                                        "size": "sm",
+                                        "flex": 2
+                                    },
+                                    {
+                                        "type": "text",
+                                        "text": status,
+                                        "wrap": True,
+                                        "color": "#666666",
+                                        "size": "sm",
+                                        "flex": 5
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "box",
+                                "layout": "baseline",
+                                "spacing": "sm",
+                                "contents": [
+                                    {
+                                        "type": "text",
+                                        "text": "Registration Date",
+                                        "color": "#aaaaaa",
+                                        "size": "sm",
+                                        "flex": 2
+                                    },
+                                    {
+                                        "type": "text",
+                                        "text": created_at.strftime('%Y-%m-%d'),
+                                        "wrap": True,
+                                        "color": "#666666",
+                                        "size": "sm",
+                                        "flex": 5
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "box",
+                                "layout": "baseline",
+                                "spacing": "sm",
+                                "contents": [
+                                    {
+                                        "type": "text",
+                                        "text": "Last Interaction",
+                                        "color": "#aaaaaa",
+                                        "size": "sm",
+                                        "flex": 2
+                                    },
+                                    {
+                                        "type": "text",
+                                        "text": last_interaction.strftime('%Y-%m-%d %H:%M'),
+                                        "wrap": True,
+                                        "color": "#666666",
+                                        "size": "sm",
+                                        "flex": 5
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "box",
+                                "layout": "baseline",
+                                "spacing": "sm",
+                                "contents": [
+                                    {
+                                        "type": "text",
+                                        "text": "Points",
+                                        "color": "#aaaaaa",
+                                        "size": "sm",
+                                        "flex": 2
+                                    },
+                                    {
+                                        "type": "text",
+                                        "text": str(points),
+                                        "wrap": True,
+                                        "color": "#666666",
+                                        "size": "sm",
+                                        "flex": 5
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
