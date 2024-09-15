@@ -20,11 +20,12 @@ app = Flask(__name__)
 line_bot_api = LineBotApi(os.environ['CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(os.environ['CHANNEL_SECRET'])
 OPENWEATHER_API_KEY = os.environ['OPENWEATHER_API_KEY']  # 請確保設置這個環境變數
-member_system = LineMemberSystem()
 
 # 資料庫連接函數
 def get_connection():
     return psycopg2.connect(os.environ['DATABASE_URL'], sslmode='require')
+
+member_system = LineMemberSystem(get_connection)
 
 def get_weather(city):
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={OPENWEATHER_API_KEY}&units=metric&lang=zh_tw"
@@ -54,18 +55,11 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    try:
-        user_message = event.message.text.strip()
-        user_id = event.source.user_id
-        profile = get_user_profile(user_id)
-        member = get_or_create_member(user_id, profile.display_name)
-    except Exception as e:
-        logger.error(f"處理消息時發生錯誤: {str(e)}")
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text="抱歉，處理您的請求時發生錯誤。請稍後再試。")
-        )
-        return
+    user_message = event.message.text.strip()
+    user_id = event.source.user_id
+    profile = get_user_profile(user_id)
+    member = get_or_create_member(user_id, profile.display_name)
+
     if '|' in user_message:
         # 分割訊息並儲存到資料庫
         call, response = user_message.split('|', 1)
