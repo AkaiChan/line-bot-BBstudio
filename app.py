@@ -12,10 +12,14 @@ from line_member_system import LineMemberSystem
 from flex_message_library import create_bubble, create_carousel, create_receipt_flex_message, create_shopping_list_flex_message, create_stock_flex_message, create_ticket_flex_message, create_transit_flex_message
 from stock_api import TWStockAPI  
 import os
+import google.generativeai as genai
 import logging
 import tempfile
 import base64
 
+# 設置 Gemini API
+genai.configure(api_key=os.getenv("GOOGLE_AI_API_KEY"))
+model = genai.GenerativeModel('gemini-pro')
 
 app = Flask(__name__)
 
@@ -208,6 +212,16 @@ def handle_message(event):
                 elif user_message.lower().startswith("broadcast "):
                     reply = broadcast_message(user_message, member, profile.display_name, user_id)
                     line_bot_api.reply_message(event.reply_token, reply)
+                elif user_message.lower().startswith("gemini "):
+                    query = user_message[7:]  # 去掉 "gemini " 前綴
+                    if len(query) > 500:  # 假設我們限制查詢最多500個字符
+                        return TextSendMessage(text="抱歉，您的查詢太長了。請將查詢限制在500個字符以內。")
+                    try:
+                        response = model.generate_content(query)
+                        return TextSendMessage(text=response.text)
+                    except Exception as e:
+                        logger.error(f"使用 Gemini API 時發生錯誤: {str(e)}")
+                        return TextSendMessage(text="抱歉，處理您的請求時發生錯誤。請稍後再試。")
                 else:
                     reply_text = f"{user_message}"
                     
