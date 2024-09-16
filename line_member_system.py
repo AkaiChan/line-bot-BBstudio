@@ -215,3 +215,9 @@ class LineMemberSystem:
                 ]
             }
         }
+
+    def get_all_member_ids(self):
+        with self.get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT line_user_id FROM line_members")
+                return [row[0] for row in cur.fetchall()]

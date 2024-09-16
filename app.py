@@ -204,6 +204,10 @@ def handle_message(event):
                 elif user_message.lower() in ["我的資訊", "member"]:
                     reply = process_user_message(user_message, member, profile.display_name, user_id)
                     line_bot_api.reply_message(event.reply_token, reply)
+                    return
+                elif user_message.lower().startswith("broadcast "):
+                    reply = broadcast_message(user_message, member, profile.display_name, user_id)
+                    line_bot_api.reply_message(event.reply_token, reply)
                 else:
                     reply_text = f"{user_message}"
                     
@@ -247,7 +251,24 @@ def process_user_message(user_message, member, display_name, user_id):
         return TextSendMessage(text=f"你好，{display_name}！有什麼我可以幫助你的嗎？\nUser ID: {user_id}\n顯示名稱: {display_name}")
     else:
         return TextSendMessage(text=f"您說: {user_message}\nUser ID: {user_id}\n顯示名稱: {display_name}\n\n您可以輸入「我的資訊」或「member」來查看會員資訊，「加分」來獲得積分，或者只是說「hi」來打個招呼。")
-
+    
+def broadcast_message(user_message, member, display_name, user_id):
+    logger.debug(f"收到用戶消息: {user_message}")
+    
+    if user_message.lower().startswith("broadcast "):
+        if member[3] != 'admin':  # 假設會員資料的第四個欄位是狀態，只有管理員可以發送廣播
+            return TextSendMessage(text="抱歉，您沒有權限發送廣播訊息。")
+        
+        broadcast_message = user_message[10:]  # 去掉 "broadcast " 前綴
+        member_ids = member_system.get_all_member_ids()
+        
+        try:
+            line_bot_api.multicast(member_ids, TextSendMessage(text=broadcast_message))
+            return TextSendMessage(text=f"廣播訊息已發送給 {len(member_ids)} 位會員。")
+        except LineBotApiError as e:
+            logger.error(f"發送廣播訊息時發生錯誤: {str(e)}")
+            return TextSendMessage(text="發送廣播訊息時發生錯誤，請稍後再試。")
+ 
 import os
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
