@@ -2,7 +2,7 @@ from psycopg2.extras import RealDictCursor
 
 def get_stores(conn):
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
-        cur.execute("SELECT id, name FROM OMS_stores")
+        cur.execute("SELECT id, name, description FROM OMS_stores")
         return cur.fetchall()
 
 def get_store_products(conn, store_id):
