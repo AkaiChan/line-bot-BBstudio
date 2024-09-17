@@ -4,6 +4,7 @@ import pytz
 from datetime import datetime
 import requests
 import psycopg2
+from oms_functions import get_stores, get_store_products, add_to_cart, get_cart_contents, add_store
 from flask import Flask, json, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
@@ -21,6 +22,8 @@ import base64
 genai.configure(api_key=os.getenv("GOOGLE_AI_API_KEY"))
 model = genai.GenerativeModel('gemini-pro')
 
+# 用戶狀態管理
+user_states = {}
 app = Flask(__name__)
 
 line_bot_api = LineBotApi(os.environ['CHANNEL_ACCESS_TOKEN'])
@@ -222,6 +225,24 @@ def handle_message(event):
                     except Exception as e:
                         logger.error(f"使用 Gemini API 時發生錯誤: {str(e)}")
                         return TextSendMessage(text="抱歉，處理您的請求時發生錯誤。請稍後再試。")
+                elif user_message == "Add store":
+                    user_states[user_id] = {"state": "waiting_for_store_name"}
+                    reply_text = "請輸入新店家的名稱:"
+                elif user_id in user_states:
+                    if user_states[user_id]["state"] == "waiting_for_store_name":
+                        user_states[user_id]["store_name"] = user_message
+                        user_states[user_id]["state"] = "waiting_for_store_description"
+                        reply_text = "請輸入店家的描述:"
+                    elif user_states[user_id]["state"] == "waiting_for_store_description":
+                        store_name = user_states[user_id]["store_name"]
+                        store_description = user_message
+                        new_store = add_store(conn, store_name, store_description)
+                        reply_text = f"已成功添加新店家:\n名稱: {new_store['name']}\n描述: {store_description}\nID: {new_store['id']}"
+                        del user_states[user_id]  # 清除用戶狀態
+                    else:
+                        reply_text = "發生錯誤,請重新開始添加店家流程。"
+                        del user_states[user_id]  # 清除用戶狀態
+                    
                 else:
                     reply_text = f"{user_message}"
                     
