@@ -236,18 +236,22 @@ def handle_message(event):
                     elif user_states[user_id]["state"] == "waiting_for_store_description":
                         store_name = user_states[user_id]["store_name"]
                         store_description = user_message
+                        conn = get_connection()
                         new_store = add_store(conn, store_name, store_description)
+                        conn.close()
                         reply_text = f"已成功添加新店家:\n名稱: {new_store['name']}\n描述: {store_description}\nID: {new_store['id']}"
                         del user_states[user_id]  # 清除用戶狀態
                     else:
                         reply_text = "發生錯誤,請重新開始添加店家流程。"
                         del user_states[user_id]  # 清除用戶狀態
-                    
+                elif user_message.lower() == "clear":
+                    del user_states[user_id]  # 清除用戶狀態
                 else:
                     reply_text = f"{user_message}"
                     
         except Exception as e:
             print(f"資料庫查詢錯誤: {e}")
+            del user_states[user_id]  # 清除用戶狀態
             reply_text = "查詢失敗，請稍後再試。"
     
     message = TextSendMessage(text=reply_text)
