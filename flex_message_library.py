@@ -192,9 +192,69 @@ def create_carousel(bubbles):
         "contents": bubbles
     }
 
-def create_shopping_list_flex_message(items):
-    carousel_contents = [create_item_bubble(item) for item in items]
-    carousel_contents.append(create_see_more_bubble())
+def create_shopping_list_flex_message(items, is_store_list=False):
+    carousel_contents = []
+    for item in items:
+        if is_store_list:
+            # 為店家列表創建內容
+            bubble = {
+                "type": "bubble",
+                "body": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": item['name'],
+                            "size": "md",
+                            "weight": "bold",
+                            "color": "#555555"
+                        },
+                        {
+                            "type": "text",
+                            "text": item.get('description', '暫無描述'),
+                            "size": "xs",
+                            "color": "#888888",
+                            "wrap": True
+                        },
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": f"ID: {item['id']}",
+                                    "size": "sm",
+                                    "color": "#111111",
+                                    "flex": 1
+                                },
+                                {
+                                    "type": "button",
+                                    "style": "primary",
+                                    "height": "sm",
+                                    "action": {
+                                        "type": "message",
+                                        "label": "選擇",
+                                        "text": f"選擇店家 {item['id']}"
+                                    },
+                                    "flex": 1
+                                }
+                            ],
+                            "margin": "md"
+                        }
+                    ],
+                    "paddingBottom": "10px"
+                }
+            }
+        else:
+            # 使用原有的create_item_bubble函數創建商品氣泡
+            bubble = create_item_bubble(item)
+        
+        carousel_contents.append(bubble)
+    
+    if not is_store_list:
+        # 只有在顯示商品列表時才添加"查看更多"氣泡
+        carousel_contents.append(create_see_more_bubble())
     
     return {
         "type": "carousel",

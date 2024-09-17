@@ -129,22 +129,14 @@ def handle_message(event):
                     line_bot_api.reply_message(event.reply_token, flex_message)
                     return
                 elif user_message.lower().strip() == "shopping":
-                    items = [
-                        {
-                            "name": "Arm Chair, White",
-                            "price": 49.99,
-                            "image_url": "https://developers-resource.landpress.line.me/fx/img/01_5_carousel.png"
-                        },
-                        {
-                            "name": "Metal Desk Lamp",
-                            "price": 11.99,
-                            "image_url": "https://developers-resource.landpress.line.me/fx/img/01_6_carousel.png",
-                            "out_of_stock": True
-                        }
-                    ]
-                    shopping_flex = create_shopping_list_flex_message(items)
-                    flex_message = FlexSendMessage(alt_text="Shopping List", contents=shopping_flex)
-                    line_bot_api.reply_message(event.reply_token, flex_message)
+                    conn = get_connection()
+                    stores = get_stores(conn)
+                    conn.close()
+                    flex_message = create_shopping_list_flex_message(stores, is_store_list=True)
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        FlexSendMessage(alt_text="店家列表", contents=flex_message)
+                    )
                     return
                 elif user_message.lower().strip() == "transit":
                     route = [
