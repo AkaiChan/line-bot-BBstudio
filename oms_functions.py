@@ -8,7 +8,7 @@ def get_stores(conn):
 def get_store_products(conn, store_id):
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
         cur.execute("""
-            SELECT id, name, price, stock_quantity 
+            SELECT id, name, description, price, stock_quantity 
             FROM OMS_products 
             WHERE store_id = %s
         """, (store_id,))
@@ -54,7 +54,19 @@ def add_store(conn, name, description=None):
         """, (name, description))
         conn.commit()
         return cur.fetchone()
+
+def check_product_exists(conn, store_id, name):
+    with conn.cursor(cursor_factory=RealDictCursor) as cur:
+        cur.execute("""
+            SELECT id FROM OMS_products 
+            WHERE store_id = %s AND LOWER(name) = LOWER(%s)
+        """, (store_id, name))
+        return cur.fetchone() is not None
+
 def add_product(conn, store_id, name, description, price, stock_quantity):
+    if check_product_exists(conn, store_id, name):
+        return None  # 返回 None 表示商品已存在
+    
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
         cur.execute("""
             INSERT INTO OMS_products (store_id, name, description, price, stock_quantity) 
