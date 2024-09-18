@@ -95,6 +95,11 @@ class LineMemberSystem:
                 "layout": "vertical",
                 "contents": [
                     {
+                        "type": "separator",
+                        "color": "#C0C0C0",
+                        "margin": "sm"
+                    },
+                    {
                         "type": "box",
                         "layout": "baseline",
                         "contents": [
@@ -181,7 +186,6 @@ class LineMemberSystem:
                 ]
             }
         }
-
     def get_member_info_flex_message(self, member):
         if not member:
             return {
