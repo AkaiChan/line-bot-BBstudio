@@ -273,25 +273,37 @@ def handle_message(event):
                         store_id = user_states[user_id]["store_id"]
                         products = user_message.split(";")
                         added_products = []
-                        conn = get_connection()
+                        skipped_products = []
                         for product in products:
                             try:
                                 name, description, price, quantity = product.split(",")
+                                name = name.strip()
+                                if not name:  # 如果名稱是空白的則跳過
+                                    continue
+                                description = description.strip()
                                 price = float(price)
                                 quantity = int(quantity)
-                                new_product = add_product(conn, store_id, name.strip(), description.strip(), price, quantity)
-                                added_products.append(new_product)
+                                new_product = add_product(conn, store_id, name, description, price, quantity)
+                                if new_product:
+                                    added_products.append(new_product)
+                                else:
+                                    skipped_products.append(name)
                             except (ValueError, IndexError):
                                 line_bot_api.reply_message(
                                     event.reply_token,
                                     TextSendMessage(text=f"添加商品 '{product}' 時出錯,請檢查格式是否正確。")
                                 )
                                 return
-                        conn.close()
                         del user_states[user_id]
-                        reply_text = "已成功添加以下商品:\n"
-                        for product in added_products:
-                            reply_text += f"名稱: {product['name']}, 價格: {product['price']}, 庫存: {product['stock_quantity']}\n"
+                        reply_text = "操作結果:\n"
+                        if added_products:
+                            reply_text += "成功添加以下商品:\n"
+                            for product in added_products:
+                                reply_text += f"名稱: {product['name']}, 價格: {product['price']}, 庫存: {product['stock_quantity']}\n"
+                        if skipped_products:
+                            reply_text += "\n以下商品已存在,已跳過:\n"
+                            for name in skipped_products:
+                                reply_text += f"{name}\n"
                         
                         line_bot_api.reply_message(
                             event.reply_token,
