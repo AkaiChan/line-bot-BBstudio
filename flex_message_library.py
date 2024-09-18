@@ -362,7 +362,7 @@ def create_item_bubble(item):
                     "action": {
                         "type": "message",
                         "label": "添加到購物車",
-                        "text": f"添加商品 {item['id']}"
+                        "text": f"添加商品 {item['id']} 1"  # 默認添加1個
                     }
                 }
             ],

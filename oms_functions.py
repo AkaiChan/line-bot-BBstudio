@@ -14,36 +14,51 @@ def get_store_products(conn, store_id):
         """, (store_id,))
         return cur.fetchall()
 
-def add_to_cart(user_carts, user_id, product_id, quantity):
-    if user_id not in user_carts:
-        user_carts[user_id] = {}
-    
-    if product_id in user_carts[user_id]:
-        user_carts[user_id][product_id] += quantity
-    else:
-        user_carts[user_id][product_id] = quantity
-
-def get_cart_contents(conn, user_carts, user_id):
-    if user_id not in user_carts:
-        return []
-    
-    cart_items = []
+def add_to_cart(conn, user_id, product_id, quantity):
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
-        for product_id, quantity in user_carts[user_id].items():
+        # 檢查購物車是否已存在
+        cur.execute("SELECT id FROM OMS_carts WHERE user_id = %s", (user_id,))
+        cart = cur.fetchone()
+        
+        if not cart:
+            # 如果購物車不存在,創建一個新的
+            cur.execute("INSERT INTO OMS_carts (user_id) VALUES (%s) RETURNING id", (user_id,))
+            cart = cur.fetchone()
+        
+        # 檢查商品是否已在購物車中
+        cur.execute("""
+            SELECT quantity FROM OMS_cart_items 
+            WHERE cart_id = %s AND product_id = %s
+        """, (cart['id'], product_id))
+        existing_item = cur.fetchone()
+        
+        if existing_item:
+            # 如果商品已在購物車中,更新數量
+            new_quantity = existing_item['quantity'] + quantity
             cur.execute("""
-                SELECT name, price 
-                FROM OMS_products 
-                WHERE id = %s
-            """, (product_id,))
-            product = cur.fetchone()
-            if product:
-                cart_items.append({
-                    'name': product['name'],
-                    'price': product['price'],
-                    'quantity': quantity,
-                    'subtotal': product['price'] * quantity
-                })
-    return cart_items
+                UPDATE OMS_cart_items SET quantity = %s 
+                WHERE cart_id = %s AND product_id = %s
+            """, (new_quantity, cart['id'], product_id))
+        else:
+            # 如果商品不在購物車中,添加新項目
+            cur.execute("""
+                INSERT INTO OMS_cart_items (cart_id, product_id, quantity) 
+                VALUES (%s, %s, %s)
+            """, (cart['id'], product_id, quantity))
+        
+        conn.commit()
+    return True
+
+def get_cart_contents(conn, user_id):
+    with conn.cursor(cursor_factory=RealDictCursor) as cur:
+        cur.execute("""
+            SELECT p.name, p.price, ci.quantity, (p.price * ci.quantity) as subtotal
+            FROM OMS_carts c
+            JOIN OMS_cart_items ci ON c.id = ci.cart_id
+            JOIN OMS_products p ON ci.product_id = p.id
+            WHERE c.user_id = %s
+        """, (user_id,))
+        return cur.fetchall()
 
 def add_store(conn, name, description=None):
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -84,3 +99,8 @@ def get_store_products(conn, store_id):
             WHERE store_id = %s
         """, (store_id,))
         return cur.fetchall()
+    
+def get_product(conn, product_id):
+    with conn.cursor(cursor_factory=RealDictCursor) as cur:
+        cur.execute("SELECT * FROM OMS_products WHERE id = %s", (product_id,))
+        return cur.fetchone()

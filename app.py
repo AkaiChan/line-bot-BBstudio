@@ -4,7 +4,7 @@ import pytz
 from datetime import datetime
 import requests
 import psycopg2
-from oms_functions import get_stores, get_store_products, add_to_cart, get_cart_contents, add_store, add_product
+from oms_functions import get_stores, get_store_products, add_to_cart, get_cart_contents, add_store, add_product, get_product
 from flask import Flask, json, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
@@ -245,6 +245,51 @@ def handle_message(event):
                     line_bot_api.reply_message(
                         event.reply_token,
                         TextSendMessage(text="請輸入要添加商品的店家ID:")
+                    )
+                elif user_message.startswith("添加商品"):
+                    try:
+                        _, product_id, quantity = user_message.split()
+                        product_id = int(product_id)
+                        quantity = int(quantity)
+                        
+                        product = get_product(conn, product_id)
+                        if not product:
+                            raise ValueError("商品不存在")
+                        
+                        if quantity <= 0:
+                            raise ValueError("數量必須大於0")
+                        
+                        if quantity > product['stock_quantity']:
+                            raise ValueError("庫存不足")
+                        
+                        add_to_cart(conn, user_id, product_id, quantity)
+                        
+                        reply_text = f"已將 {quantity} 個 {product['name']} 添加到購物車"
+                    except ValueError as e:
+                        reply_text = f"添加失敗: {str(e)}"
+                    except Exception as e:
+                        reply_text = "添加失敗,請稍後再試"
+                    
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextSendMessage(text=reply_text)
+                    )
+
+                elif user_message.lower() == "查看購物車":
+                    cart_items = get_cart_contents(conn, user_id)
+                    if not cart_items:
+                        reply_text = "您的購物車是空的"
+                    else:
+                        reply_text = "您的購物車:\n"
+                        total = 0
+                        for item in cart_items:
+                            reply_text += f"{item['name']} x {item['quantity']} = ${item['subtotal']:.2f}\n"
+                            total += item['subtotal']
+                        reply_text += f"\n總計: ${total:.2f}"
+                    
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextSendMessage(text=reply_text)
                     )
                 elif user_message.lower() == "clear":
                     del user_states[user_id]  # 清除用戶狀態
