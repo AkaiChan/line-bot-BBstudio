@@ -4,7 +4,7 @@ import pytz
 from datetime import datetime
 import requests
 import psycopg2
-from oms_functions import get_stores, get_store_products, add_to_cart, get_cart_contents, add_store
+from oms_functions import get_stores, get_store_products, add_to_cart, get_cart_contents, add_store, add_product
 from flask import Flask, json, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
@@ -240,14 +240,21 @@ def handle_message(event):
                             event.reply_token,
                             TextSendMessage(text="該店家目前沒有商品。")
                         )
+                elif user_message == "批量添加商品":
+                    user_states[user_id] = {"state": "waiting_for_store_id_bulk"}
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextSendMessage(text="請輸入要添加商品的店家ID:")
+                    )
                 elif user_message.lower() == "clear":
                     del user_states[user_id]  # 清除用戶狀態
                 elif user_id in user_states:
-                    if user_states[user_id]["state"] == "waiting_for_store_name":
+                    state = user_states[user_id]["state"]
+                    if state == "waiting_for_store_name":
                         user_states[user_id]["store_name"] = user_message
                         user_states[user_id]["state"] = "waiting_for_store_description"
                         reply_text = "請輸入店家的描述:"
-                    elif user_states[user_id]["state"] == "waiting_for_store_description":
+                    elif state == "waiting_for_store_description":
                         store_name = user_states[user_id]["store_name"]
                         store_description = user_message
                         conn = get_connection()
@@ -255,6 +262,40 @@ def handle_message(event):
                         conn.close()
                         reply_text = f"已成功添加新店家:\n名稱: {new_store['name']}\n描述: {store_description}\nID: {new_store['id']}"
                         del user_states[user_id]  # 清除用戶狀態
+                    elif state == "waiting_for_store_id_bulk":
+                        user_states[user_id]["store_id"] = user_message
+                        user_states[user_id]["state"] = "waiting_for_bulk_products"
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            TextSendMessage(text="請輸入商品信息,格式為:\n商品名稱,描述,價格,庫存數量;商品名稱2,描述2,價格2,庫存數量2;...")
+                        )
+                    elif state == "waiting_for_bulk_products":
+                        store_id = user_states[user_id]["store_id"]
+                        products = user_message.split(";")
+                        added_products = []
+                        for product in products:
+                            try:
+                                name, description, price, quantity = product.split(",")
+                                price = float(price)
+                                quantity = int(quantity)
+                                new_product = add_product(conn, store_id, name.strip(), description.strip(), price, quantity)
+                                added_products.append(new_product)
+                            except (ValueError, IndexError):
+                                line_bot_api.reply_message(
+                                    event.reply_token,
+                                    TextSendMessage(text=f"添加商品 '{product}' 時出錯,請檢查格式是否正確。")
+                                )
+                                return
+                        
+                        del user_states[user_id]
+                        reply_text = "已成功添加以下商品:\n"
+                        for product in added_products:
+                            reply_text += f"名稱: {product['name']}, 價格: {product['price']}, 庫存: {product['stock_quantity']}\n"
+                        
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            TextSendMessage(text=reply_text)
+                        )
                     else:
                         reply_text = "發生錯誤,請重新開始添加店家流程。"
                         del user_states[user_id]  # 清除用戶狀態

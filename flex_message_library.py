@@ -264,27 +264,90 @@ def create_shopping_list_flex_message(items, is_store_list=False):
 def create_item_bubble(item):
     return {
         "type": "bubble",
-        "hero": {
-            "type": "image",
-            "size": "full",
-            "aspectRatio": "20:13",
-            "aspectMode": "cover",
-            "url": item["image_url"]
-        },
         "body": {
             "type": "box",
             "layout": "vertical",
-            "spacing": "sm",
             "contents": [
                 {
                     "type": "text",
-                    "text": item["name"],
-                    "wrap": True,
+                    "text": item['name'],
                     "weight": "bold",
                     "size": "xl"
                 },
-                create_price_box(item["price"]),
-                *([create_out_of_stock_text()] if item.get("out_of_stock") else [])
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "margin": "lg",
+                    "spacing": "sm",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "baseline",
+                            "spacing": "sm",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "描述",
+                                    "color": "#aaaaaa",
+                                    "size": "sm",
+                                    "flex": 1
+                                },
+                                {
+                                    "type": "text",
+                                    "text": item['description'],
+                                    "wrap": True,
+                                    "color": "#666666",
+                                    "size": "sm",
+                                    "flex": 5
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "baseline",
+                            "spacing": "sm",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "價格",
+                                    "color": "#aaaaaa",
+                                    "size": "sm",
+                                    "flex": 1
+                                },
+                                {
+                                    "type": "text",
+                                    "text": f"${item['price']}",
+                                    "wrap": True,
+                                    "color": "#666666",
+                                    "size": "sm",
+                                    "flex": 5
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "baseline",
+                            "spacing": "sm",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "庫存",
+                                    "color": "#aaaaaa",
+                                    "size": "sm",
+                                    "flex": 1
+                                },
+                                {
+                                    "type": "text",
+                                    "text": str(item['stock_quantity']),
+                                    "wrap": True,
+                                    "color": "#666666",
+                                    "size": "sm",
+                                    "flex": 5
+                                }
+                            ]
+                        }
+                    ]
+                }
             ]
         },
         "footer": {
@@ -292,9 +355,18 @@ def create_item_bubble(item):
             "layout": "vertical",
             "spacing": "sm",
             "contents": [
-                create_button("Add to Cart", "primary", item.get("out_of_stock")),
-                create_button("Add to wishlist")
-            ]
+                {
+                    "type": "button",
+                    "style": "primary",
+                    "height": "sm",
+                    "action": {
+                        "type": "message",
+                        "label": "添加到購物車",
+                        "text": f"添加商品 {item['id']}"
+                    }
+                }
+            ],
+            "flex": 0
         }
     }
 
