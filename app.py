@@ -284,12 +284,20 @@ def handle_message(event):
                     if not cart_items:
                         reply_text = "您的購物車是空的"
                     else:
-                        reply_text = "您的購物車:\n"
-                        total = 0
-                        for item in cart_items:
-                            reply_text += f"{item['name']} x {item['quantity']} = ${item['subtotal']:.2f}\n"
-                            total += item['subtotal']
-                        reply_text += f"\n總計: ${total:.2f}"
+                        total = sum(item['subtotal'] for item in cart_items)
+                        flex_message = create_receipt_flex_message(
+                            store_name="您的購物車",
+                            address="",
+                            items=cart_items,
+                            total=total,
+                            cash=0,
+                            change=0,
+                            payment_id=""
+                        )
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            FlexSendMessage(alt_text="購物車內容", contents=flex_message)
+                        )
                     
                     line_bot_api.reply_message(
                         event.reply_token,

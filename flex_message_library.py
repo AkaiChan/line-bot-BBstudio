@@ -602,50 +602,51 @@ def create_transit_step(from_step, to_step):
         "height": "64px"
     }
 
-def create_receipt_flex_message(store_name, address, items, total, cash, change, payment_id):
+def create_receipt_flex_message(store_name, address, items, total, cash=None, change=None, payment_id=None):
+    contents = [
+        {
+            "type": "text",
+            "text": store_name,
+            "weight": "bold",
+            "size": "xxl",
+            "margin": "md"
+        },
+        {
+            "type": "separator",
+            "margin": "xxl"
+        },
+        create_item_list(items),
+        {
+            "type": "separator",
+            "margin": "xxl"
+        },
+        create_summary(len(items), total, cash, change)
+    ]
+
+    if address:
+        contents.insert(1, {
+            "type": "text",
+            "text": address,
+            "size": "xs",
+            "color": "#aaaaaa",
+            "wrap": True
+        })
+
+    if payment_id:
+        contents.extend([
+            {
+                "type": "separator",
+                "margin": "xxl"
+            },
+            create_payment_info(payment_id)
+        ])
+
     return {
         "type": "bubble",
         "body": {
             "type": "box",
             "layout": "vertical",
-            "contents": [
-                {
-                    "type": "text",
-                    "text": "RECEIPT",
-                    "weight": "bold",
-                    "color": "#1DB446",
-                    "size": "sm"
-                },
-                {
-                    "type": "text",
-                    "text": store_name,
-                    "weight": "bold",
-                    "size": "xxl",
-                    "margin": "md"
-                },
-                {
-                    "type": "text",
-                    "text": address,
-                    "size": "xs",
-                    "color": "#aaaaaa",
-                    "wrap": True
-                },
-                {
-                    "type": "separator",
-                    "margin": "xxl"
-                },
-                create_item_list(items),
-                {
-                    "type": "separator",
-                    "margin": "xxl"
-                },
-                create_summary(len(items), total, cash, change),
-                {
-                    "type": "separator",
-                    "margin": "xxl"
-                },
-                create_payment_info(payment_id)
-            ]
+            "contents": contents
         },
         "styles": {
             "footer": {
@@ -655,7 +656,7 @@ def create_receipt_flex_message(store_name, address, items, total, cash, change,
     }
 
 def create_item_list(items):
-    contents = [create_item_box(item["name"], item["price"]) for item in items]
+    contents = [create_item_box(item["name"], item["quantity"], item["price"], item["subtotal"]) for item in items]
     return {
         "type": "box",
         "layout": "vertical",
@@ -664,21 +665,21 @@ def create_item_list(items):
         "contents": contents
     }
 
-def create_item_box(name, price):
+def create_item_box(name, quantity, price, subtotal):
     return {
         "type": "box",
         "layout": "horizontal",
         "contents": [
             {
                 "type": "text",
-                "text": name,
+                "text": f"{name} x{quantity}",
                 "size": "sm",
                 "color": "#555555",
                 "flex": 0
             },
             {
                 "type": "text",
-                "text": f"${price:.2f}",
+                "text": f"${subtotal:.2f}",
                 "size": "sm",
                 "color": "#111111",
                 "align": "end"
@@ -686,18 +687,21 @@ def create_item_box(name, price):
         ]
     }
 
-def create_summary(item_count, total, cash, change):
+def create_summary(item_count, total, cash=None, change=None):
+    contents = [
+        create_summary_row("商品數量", str(item_count)),
+        create_summary_row("總計", f"${total:.2f}")
+    ]
+    if cash is not None:
+        contents.append(create_summary_row("支付", f"${cash:.2f}"))
+    if change is not None:
+        contents.append(create_summary_row("找零", f"${change:.2f}"))
     return {
         "type": "box",
         "layout": "vertical",
         "margin": "xxl",
         "spacing": "sm",
-        "contents": [
-            create_summary_row("ITEMS", str(item_count)),
-            create_summary_row("TOTAL", f"${total:.2f}"),
-            create_summary_row("CASH", f"${cash:.2f}"),
-            create_summary_row("CHANGE", f"${change:.2f}")
-        ]
+        "contents": contents
     }
 
 def create_summary_row(label, value):
