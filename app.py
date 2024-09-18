@@ -204,6 +204,13 @@ def handle_message(event):
                     reply = process_user_message(user_message, member, profile.display_name, user_id)
                     line_bot_api.reply_message(event.reply_token, reply)
                     return
+                elif user_message.lower() == "members":
+                    if not member_system.is_admin(user_id):
+                        return TextSendMessage(text="抱歉，只有管理員可以查看所有會員信息。")
+                    
+                    all_members = member_system.get_all_members()
+                    flex_content = member_system.create_members_flex_message(all_members)
+                    return FlexSendMessage(alt_text="所有會員信息", contents=flex_content)
                 elif user_message.lower().startswith("broadcast "):
                     reply = broadcast_message(user_message, member, profile.display_name, user_id)
                     line_bot_api.reply_message(event.reply_token, reply)

@@ -221,3 +221,129 @@ class LineMemberSystem:
             with conn.cursor() as cur:
                 cur.execute("SELECT line_user_id FROM line_members")
                 return [row[0] for row in cur.fetchall()]
+    def get_all_members(self):
+        with self.get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT * FROM line_members ORDER BY created_at DESC")
+                return cur.fetchall()
+
+    def is_admin(self, line_user_id):
+        member = self.get_member(line_user_id)
+        return member and member[3].lower() == 'admin'  # 假設狀態是第四個欄位
+    
+    def create_members_flex_message(self, members):
+        bubbles = []
+        for member in members:
+            id, line_user_id, display_name, status, created_at, last_interaction, points = member
+            bubble = {
+                "type": "bubble",
+                "size": "kilo",
+                "header": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": display_name,
+                            "weight": "bold",
+                            "size": "xl"
+                        }
+                    ]
+                },
+                "body": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "baseline",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "狀態",
+                                    "weight": "bold",
+                                    "margin": "sm",
+                                    "flex": 0
+                                },
+                                {
+                                    "type": "text",
+                                    "text": status,
+                                    "size": "sm",
+                                    "color": "#111111",
+                                    "margin": "sm",
+                                    "flex": 0
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "baseline",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "註冊日期",
+                                    "weight": "bold",
+                                    "margin": "sm",
+                                    "flex": 0
+                                },
+                                {
+                                    "type": "text",
+                                    "text": created_at.strftime('%Y-%m-%d'),
+                                    "size": "sm",
+                                    "color": "#111111",
+                                    "margin": "sm",
+                                    "flex": 0
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "baseline",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "最後互動",
+                                    "weight": "bold",
+                                    "margin": "sm",
+                                    "flex": 0
+                                },
+                                {
+                                    "type": "text",
+                                    "text": last_interaction.strftime('%Y-%m-%d %H:%M'),
+                                    "size": "sm",
+                                    "color": "#111111",
+                                    "margin": "sm",
+                                    "flex": 0
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "baseline",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "積分",
+                                    "weight": "bold",
+                                    "margin": "sm",
+                                    "flex": 0
+                                },
+                                {
+                                    "type": "text",
+                                    "text": str(points),
+                                    "size": "sm",
+                                    "color": "#111111",
+                                    "margin": "sm",
+                                    "flex": 0
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+            bubbles.append(bubble)
+
+        return {
+            "type": "carousel",
+            "contents": bubbles
+        }
