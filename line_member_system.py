@@ -95,26 +95,30 @@ class LineMemberSystem:
                 "layout": "vertical",
                 "contents": [
                     {
+                        "type": "separator",
+                        "color": "#C0C0C0",
+                        "margin": "sm"
+                    },
+                    {
                         "type": "box",
-                        "layout": "horizontal",
+                        "layout": "baseline",
                         "contents": [
                             {
                                 "type": "text",
-                                "text": "Status:",
+                                "text": "Status",
                                 "weight": "bold",
-                                "size": "sm",
-                                "flex": 1
+                                "margin": "sm",
+                                "flex": 0
                             },
                             {
                                 "type": "text",
                                 "text": status,
                                 "size": "sm",
                                 "color": "#111111",
-                                "flex": 2
+                                "margin": "sm",
+                                "flex": 0
                             }
-                        ],
-                        "spacing": "none",
-                        "margin": "sm"
+                        ]
                     },
                     {
                         "type": "box",
