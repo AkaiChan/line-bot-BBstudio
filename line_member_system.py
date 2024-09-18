@@ -287,7 +287,7 @@ class LineMemberSystem:
                             "contents": [
                                 {
                                     "type": "text",
-                                    "text": "Registration Date",
+                                    "text": "Reg Date",
                                     "weight": "bold",
                                     "margin": "sm",
                                     "flex": 0
@@ -308,7 +308,7 @@ class LineMemberSystem:
                             "contents": [
                                 {
                                     "type": "text",
-                                    "text": "Last Interaction",
+                                    "text": "Last Active",
                                     "weight": "bold",
                                     "margin": "sm",
                                     "flex": 0
