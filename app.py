@@ -224,6 +224,22 @@ def handle_message(event):
                 elif user_message == "Add store":
                     user_states[user_id] = {"state": "waiting_for_store_name"}
                     reply_text = "請輸入新店家的名稱:"
+                elif user_message.startswith("選擇店家"):
+                    store_id = user_message.split()[-1]
+                    products = get_store_products(conn, store_id)
+                    if products:
+                        flex_message = create_shopping_list_flex_message(products, is_store_list=False)
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            FlexSendMessage(alt_text="商品列表", contents=flex_message)
+                        )
+                    else:
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            TextSendMessage(text="該店家目前沒有商品。")
+                        )
+                elif user_message.lower() == "clear":
+                    del user_states[user_id]  # 清除用戶狀態
                 elif user_id in user_states:
                     if user_states[user_id]["state"] == "waiting_for_store_name":
                         user_states[user_id]["store_name"] = user_message
@@ -240,8 +256,6 @@ def handle_message(event):
                     else:
                         reply_text = "發生錯誤,請重新開始添加店家流程。"
                         del user_states[user_id]  # 清除用戶狀態
-                elif user_message.lower() == "clear":
-                    del user_states[user_id]  # 清除用戶狀態
                 else:
                     reply_text = f"{user_message}"
                     

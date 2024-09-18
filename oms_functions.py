@@ -54,3 +54,21 @@ def add_store(conn, name, description=None):
         """, (name, description))
         conn.commit()
         return cur.fetchone()
+def add_product(conn, store_id, name, description, price, stock_quantity):
+    with conn.cursor(cursor_factory=RealDictCursor) as cur:
+        cur.execute("""
+            INSERT INTO OMS_products (store_id, name, description, price, stock_quantity) 
+            VALUES (%s, %s, %s, %s, %s)
+            RETURNING id, name, description, price, stock_quantity
+        """, (store_id, name, description, price, stock_quantity))
+        conn.commit()
+        return cur.fetchone()
+
+def get_store_products(conn, store_id):
+    with conn.cursor(cursor_factory=RealDictCursor) as cur:
+        cur.execute("""
+            SELECT id, name, description, price, stock_quantity 
+            FROM OMS_products 
+            WHERE store_id = %s
+        """, (store_id,))
+        return cur.fetchall()
