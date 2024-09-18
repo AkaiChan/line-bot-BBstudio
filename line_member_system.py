@@ -233,8 +233,14 @@ class LineMemberSystem:
     
     def create_members_flex_message(self, members):
         bubbles = []
+        tw_tz = pytz.timezone('Asia/Taipei')
         for member in members:
             id, line_user_id, display_name, status, created_at, last_interaction, points = member
+            
+            # Convert to Taiwan time
+            created_at = created_at.replace(tzinfo=pytz.UTC).astimezone(tw_tz)
+            last_interaction = last_interaction.replace(tzinfo=pytz.UTC).astimezone(tw_tz)
+            
             bubble = {
                 "type": "bubble",
                 "size": "kilo",
@@ -260,7 +266,7 @@ class LineMemberSystem:
                             "contents": [
                                 {
                                     "type": "text",
-                                    "text": "狀態",
+                                    "text": "Status",
                                     "weight": "bold",
                                     "margin": "sm",
                                     "flex": 0
@@ -281,7 +287,7 @@ class LineMemberSystem:
                             "contents": [
                                 {
                                     "type": "text",
-                                    "text": "註冊日期",
+                                    "text": "Registration Date",
                                     "weight": "bold",
                                     "margin": "sm",
                                     "flex": 0
@@ -302,7 +308,7 @@ class LineMemberSystem:
                             "contents": [
                                 {
                                     "type": "text",
-                                    "text": "最後互動",
+                                    "text": "Last Interaction",
                                     "weight": "bold",
                                     "margin": "sm",
                                     "flex": 0
@@ -323,7 +329,7 @@ class LineMemberSystem:
                             "contents": [
                                 {
                                     "type": "text",
-                                    "text": "積分",
+                                    "text": "Points",
                                     "weight": "bold",
                                     "margin": "sm",
                                     "flex": 0
