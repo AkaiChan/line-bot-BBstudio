@@ -226,7 +226,9 @@ def handle_message(event):
                     reply_text = "請輸入新店家的名稱:"
                 elif user_message.startswith("選擇店家"):
                     store_id = user_message.split()[-1]
+                    conn = get_connection()
                     products = get_store_products(conn, store_id)
+                    conn.close()
                     if products:
                         flex_message = create_shopping_list_flex_message(products, is_store_list=False)
                         line_bot_api.reply_message(
