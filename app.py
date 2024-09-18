@@ -273,6 +273,7 @@ def handle_message(event):
                         store_id = user_states[user_id]["store_id"]
                         products = user_message.split(";")
                         added_products = []
+                        conn = get_connection()
                         for product in products:
                             try:
                                 name, description, price, quantity = product.split(",")
@@ -286,7 +287,7 @@ def handle_message(event):
                                     TextSendMessage(text=f"添加商品 '{product}' 時出錯,請檢查格式是否正確。")
                                 )
                                 return
-                        
+                        conn.close()
                         del user_states[user_id]
                         reply_text = "已成功添加以下商品:\n"
                         for product in added_products:
