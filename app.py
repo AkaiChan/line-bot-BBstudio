@@ -252,6 +252,7 @@ def handle_message(event):
                         product_id = int(product_id)
                         quantity = int(quantity)
                         
+                        conn = get_connection()
                         product = get_product(conn, product_id)
                         if not product:
                             raise ValueError("商品不存在")
@@ -263,6 +264,7 @@ def handle_message(event):
                             raise ValueError("庫存不足")
                         
                         add_to_cart(conn, user_id, product_id, quantity)
+                        conn.close()
                         
                         reply_text = f"已將 {quantity} 個 {product['name']} 添加到購物車"
                     except ValueError as e:
@@ -276,7 +278,9 @@ def handle_message(event):
                     )
 
                 elif user_message.lower() == "查看購物車":
+                    conn = get_connection()
                     cart_items = get_cart_contents(conn, user_id)
+                    conn.close()
                     if not cart_items:
                         reply_text = "您的購物車是空的"
                     else:
