@@ -249,48 +249,64 @@ def create_shopping_list_flex_message(items, is_store_list=False):
         else:
             # 使用原有的create_item_bubble函數創建商品氣泡
             bubble = create_item_bubble(item)
-            
-            # 添加查看購物車的氣泡
-            cart_bubble = {
-                "type": "bubble",
-                "body": {
-                    "type": "box",
-                    "layout": "vertical",
-                    "contents": [
-                        {
-                            "type": "text",
-                            "text": "查看購物車",
-                            "weight": "bold",
-                            "size": "xl",
-                            "align": "center"
-                        },
-                        {
-                            "type": "button",
-                            "style": "primary",
-                            "action": {
-                                "type": "message",
-                                "label": "查看購物車",
-                                "text": "查看購物車"
-                            },
-                            "margin": "md"
-                        }
-                    ],
-                    "justifyContent": "center",
-                    "alignItems": "center",
-                    "paddingAll": "20px"
-                }
-            }
-            carousel_contents.extend([bubble, cart_bubble])
         
         carousel_contents.append(bubble)
     
     if not is_store_list:
-        # 只有在顯示商品列表時才添加"查看更多"氣泡
-        carousel_contents.append(create_see_more_bubble())
+        # 只有在顯示商品列表時才添加"查看購物車"氣泡
+        carousel_contents.append(create_view_cart_bubble())
     
     return {
         "type": "carousel",
         "contents": carousel_contents
+    }
+def create_view_cart_bubble():
+    return {
+        "type": "bubble",
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+                {
+                    "type": "text",
+                    "text": "查看購物車",
+                    "weight": "bold",
+                    "size": "xl",
+                    "align": "center"
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "margin": "lg",
+                    "spacing": "sm",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": "點擊查看您的購物車內容",
+                            "wrap": True,
+                            "color": "#666666",
+                            "size": "sm",
+                            "align": "center"
+                        }
+                    ]
+                },
+                {
+                    "type": "button",
+                    "style": "primary",
+                    "action": {
+                        "type": "message",
+                        "label": "查看購物車",
+                        "text": "查看購物車"
+                    },
+                    "margin": "md"
+                }
+            ]
+        },
+        "styles": {
+            "body": {
+                "backgroundColor": "#F0F8FF"
+            }
+        }
     }
 
 def create_item_bubble(item):
