@@ -57,170 +57,6 @@ class LineMemberSystem:
             "points": points
         }
 
-    def get_member_info_flex_message(self, member):
-        if not member:
-            return {
-                "type": "bubble",
-                "body": {
-                    "type": "box",
-                    "layout": "vertical",
-                    "contents": [
-                        {
-                            "type": "text",
-                            "text": "Not a member",
-                            "weight": "bold",
-                            "size": "xl"
-                        }
-                    ]
-                }
-            }
-
-        id, line_user_id, display_name, status, created_at, last_interaction, points = member
-        
-        # 將時間轉換為台灣時區
-        tw_tz = pytz.timezone('Asia/Taipei')
-        created_at = created_at.replace(tzinfo=pytz.UTC).astimezone(tw_tz)
-        last_interaction = last_interaction.replace(tzinfo=pytz.UTC).astimezone(tw_tz)
-        
-        return {
-            "type": "bubble",
-            "body": {
-                "type": "box",
-                "layout": "vertical",
-                "contents": [
-                    {
-                        "type": "text",
-                        "text": "Member Info",
-                        "weight": "bold",
-                        "size": "xl"
-                    },
-                    {
-                        "type": "box",
-                        "layout": "vertical",
-                        "margin": "lg",
-                        "spacing": "sm",
-                        "contents": [
-                            {
-                                "type": "box",
-                                "layout": "baseline",
-                                "spacing": "sm",
-                                "contents": [
-                                    {
-                                        "type": "text",
-                                        "text": "Name",
-                                        "color": "#aaaaaa",
-                                        "size": "sm",
-                                        "flex": 2
-                                    },
-                                    {
-                                        "type": "text",
-                                        "text": display_name,
-                                        "wrap": True,
-                                        "color": "#666666",
-                                        "size": "sm",
-                                        "flex": 5
-                                    }
-                                ]
-                            },
-                            {
-                                "type": "box",
-                                "layout": "baseline",
-                                "spacing": "sm",
-                                "contents": [
-                                    {
-                                        "type": "text",
-                                        "text": "Status",
-                                        "color": "#aaaaaa",
-                                        "size": "sm",
-                                        "flex": 2
-                                    },
-                                    {
-                                        "type": "text",
-                                        "text": status,
-                                        "wrap": True,
-                                        "color": "#666666",
-                                        "size": "sm",
-                                        "flex": 5
-                                    }
-                                ]
-                            },
-                            {
-                                "type": "box",
-                                "layout": "baseline",
-                                "spacing": "sm",
-                                "contents": [
-                                    {
-                                        "type": "text",
-                                        "text": "Reg Date",
-                                        "color": "#aaaaaa",
-                                        "size": "sm",
-                                        "flex": 2
-                                    },
-                                    {
-                                        "type": "text",
-                                        "text": created_at.strftime('%Y-%m-%d'),
-                                        "wrap": True,
-                                        "color": "#666666",
-                                        "size": "sm",
-                                        "flex": 5
-                                    }
-                                ]
-                            },
-                            {
-                                "type": "box",
-                                "layout": "baseline",
-                                "spacing": "sm",
-                                "contents": [
-                                    {
-                                        "type": "text",
-                                        "text": "Last Active",
-                                        "color": "#aaaaaa",
-                                        "size": "sm",
-                                        "flex": 2
-                                    },
-                                    {
-                                        "type": "text",
-                                        "text": last_interaction.strftime('%Y-%m-%d %H:%M'),
-                                        "wrap": True,
-                                        "color": "#666666",
-                                        "size": "sm",
-                                        "flex": 5
-                                    }
-                                ]
-                            },
-                            {
-                                "type": "box",
-                                "layout": "baseline",
-                                "spacing": "sm",
-                                "contents": [
-                                    {
-                                        "type": "text",
-                                        "text": "Points",
-                                        "color": "#aaaaaa",
-                                        "size": "sm",
-                                        "flex": 2
-                                    },
-                                    {
-                                        "type": "text",
-                                        "text": str(points),
-                                        "wrap": True,
-                                        "color": "#666666",
-                                        "size": "sm",
-                                        "flex": 5
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            }
-        }
-
-    def get_all_member_ids(self):
-        with self.get_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute("SELECT line_user_id FROM line_members")
-                return [row[0] for row in cur.fetchall()]
     def get_all_members(self):
         with self.get_connection() as conn:
             with conn.cursor() as cur:
@@ -231,124 +67,142 @@ class LineMemberSystem:
         member = self.get_member(line_user_id)
         return member and member[3].lower() == 'admin'  # 假設狀態是第四個欄位
     
-    def create_members_flex_message(self, members):
-        bubbles = []
+    def _create_member_bubble(self, member):
+        id, line_user_id, display_name, status, created_at, last_interaction, points = member
+        
+        # 將時間轉換為台灣時區
         tw_tz = pytz.timezone('Asia/Taipei')
-        for member in members:
-            id, line_user_id, display_name, status, created_at, last_interaction, points = member
-            
-            # Convert to Taiwan time
-            created_at = created_at.replace(tzinfo=pytz.UTC).astimezone(tw_tz)
-            last_interaction = last_interaction.replace(tzinfo=pytz.UTC).astimezone(tw_tz)
-            
-            bubble = {
+        created_at = created_at.replace(tzinfo=pytz.UTC).astimezone(tw_tz)
+        last_interaction = last_interaction.replace(tzinfo=pytz.UTC).astimezone(tw_tz)
+        
+        return {
+            "type": "bubble",
+            "size": "kilo",
+            "header": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": display_name,
+                        "weight": "bold",
+                        "size": "xl"
+                    }
+                ]
+            },
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "box",
+                        "layout": "baseline",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "Status",
+                                "weight": "bold",
+                                "margin": "sm",
+                                "flex": 0
+                            },
+                            {
+                                "type": "text",
+                                "text": status,
+                                "size": "sm",
+                                "color": "#111111",
+                                "margin": "sm",
+                                "flex": 0
+                            }
+                        ]
+                    },
+                    {
+                        "type": "box",
+                        "layout": "baseline",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "Reg. date",
+                                "weight": "bold",
+                                "margin": "sm",
+                                "flex": 0
+                            },
+                            {
+                                "type": "text",
+                                "text": created_at.strftime('%Y-%m-%d'),
+                                "size": "sm",
+                                "color": "#111111",
+                                "margin": "sm",
+                                "flex": 0
+                            }
+                        ]
+                    },
+                    {
+                        "type": "box",
+                        "layout": "baseline",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "Last active",
+                                "weight": "bold",
+                                "margin": "sm",
+                                "flex": 0
+                            },
+                            {
+                                "type": "text",
+                                "text": last_interaction.strftime('%Y-%m-%d %H:%M'),
+                                "size": "sm",
+                                "color": "#111111",
+                                "margin": "sm",
+                                "flex": 0
+                            }
+                        ]
+                    },
+                    {
+                        "type": "box",
+                        "layout": "baseline",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "Points",
+                                "weight": "bold",
+                                "margin": "sm",
+                                "flex": 0
+                            },
+                            {
+                                "type": "text",
+                                "text": str(points),
+                                "size": "sm",
+                                "color": "#111111",
+                                "margin": "sm",
+                                "flex": 0
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+
+    def get_member_info_flex_message(self, member):
+        if not member:
+            return {
                 "type": "bubble",
-                "size": "kilo",
-                "header": {
-                    "type": "box",
-                    "layout": "vertical",
-                    "contents": [
-                        {
-                            "type": "text",
-                            "text": display_name,
-                            "weight": "bold",
-                            "size": "xl"
-                        }
-                    ]
-                },
                 "body": {
                     "type": "box",
                     "layout": "vertical",
                     "contents": [
                         {
-                            "type": "box",
-                            "layout": "baseline",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "Status",
-                                    "weight": "bold",
-                                    "margin": "sm",
-                                    "flex": 0
-                                },
-                                {
-                                    "type": "text",
-                                    "text": status,
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "margin": "sm",
-                                    "flex": 0
-                                }
-                            ]
-                        },
-                        {
-                            "type": "box",
-                            "layout": "baseline",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "Reg Date",
-                                    "weight": "bold",
-                                    "margin": "sm",
-                                    "flex": 0
-                                },
-                                {
-                                    "type": "text",
-                                    "text": created_at.strftime('%Y-%m-%d'),
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "margin": "sm",
-                                    "flex": 0
-                                }
-                            ]
-                        },
-                        {
-                            "type": "box",
-                            "layout": "baseline",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "Last Active",
-                                    "weight": "bold",
-                                    "margin": "sm",
-                                    "flex": 0
-                                },
-                                {
-                                    "type": "text",
-                                    "text": last_interaction.strftime('%Y-%m-%d %H:%M'),
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "margin": "sm",
-                                    "flex": 0
-                                }
-                            ]
-                        },
-                        {
-                            "type": "box",
-                            "layout": "baseline",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "Points",
-                                    "weight": "bold",
-                                    "margin": "sm",
-                                    "flex": 0
-                                },
-                                {
-                                    "type": "text",
-                                    "text": str(points),
-                                    "size": "sm",
-                                    "color": "#111111",
-                                    "margin": "sm",
-                                    "flex": 0
-                                }
-                            ]
+                            "type": "text",
+                            "text": "您還不是會員",
+                            "weight": "bold",
+                            "size": "xl"
                         }
                     ]
                 }
             }
-            bubbles.append(bubble)
+        return self._create_member_bubble(member)
 
+    def create_members_flex_message(self, members):
+        bubbles = [self._create_member_bubble(member) for member in members]
         return {
             "type": "carousel",
             "contents": bubbles
