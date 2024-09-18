@@ -205,12 +205,9 @@ def handle_message(event):
                     line_bot_api.reply_message(event.reply_token, reply)
                     return
                 elif user_message.lower() == "members":
-                    if not member_system.is_admin(user_id):
-                        return TextSendMessage(text="抱歉，只有管理員可以查看所有會員信息。")
-                    
-                    all_members = member_system.get_all_members()
-                    flex_content = member_system.create_members_flex_message(all_members)
-                    return FlexSendMessage(alt_text="所有會員信息", contents=flex_content)
+                    reply = process_user_message(user_message, member, profile.display_name, user_id)
+                    line_bot_api.reply_message(event.reply_token, reply)
+                    return
                 elif user_message.lower().startswith("broadcast "):
                     reply = broadcast_message(user_message, member, profile.display_name, user_id)
                     line_bot_api.reply_message(event.reply_token, reply)
@@ -287,6 +284,13 @@ def process_user_message(user_message, member, display_name, user_id):
         return TextSendMessage(text=f"恭喜獲得 10 積分！\nUser ID: {user_id}\n顯示名稱: {display_name}")
     elif user_message.lower() == "hi":
         return TextSendMessage(text=f"你好，{display_name}！有什麼我可以幫助你的嗎？\nUser ID: {user_id}\n顯示名稱: {display_name}")
+    elif user_message.lower() == "members":
+        if not member_system.is_admin(user_id):
+            return TextSendMessage(text="抱歉，只有管理員可以查看所有會員信息。")
+        
+        all_members = member_system.get_all_members()
+        flex_content = member_system.create_members_flex_message(all_members)
+        return FlexSendMessage(alt_text="所有會員信息", contents=flex_content)
     else:
         return TextSendMessage(text=f"您說: {user_message}\nUser ID: {user_id}\n顯示名稱: {display_name}\n\n您可以輸入「我的資訊」或「member」來查看會員資訊，「加分」來獲得積分，或者只是說「hi」來打個招呼。")
     
