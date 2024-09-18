@@ -194,6 +194,9 @@ def create_carousel(bubbles):
 
 def create_shopping_list_flex_message(items, is_store_list=False):
     carousel_contents = []
+    if not is_store_list:
+        # 只有在顯示商品列表時才添加"查看購物車"氣泡
+        carousel_contents.append(create_view_cart_bubble())
     for item in items:
         if is_store_list:
             # 為店家列表創建內容
@@ -251,10 +254,6 @@ def create_shopping_list_flex_message(items, is_store_list=False):
             bubble = create_item_bubble(item)
         
         carousel_contents.append(bubble)
-    
-    if not is_store_list:
-        # 只有在顯示商品列表時才添加"查看購物車"氣泡
-        carousel_contents.append(create_view_cart_bubble())
     
     return {
         "type": "carousel",
