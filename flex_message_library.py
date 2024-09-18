@@ -249,6 +249,19 @@ def create_shopping_list_flex_message(items, is_store_list=False):
         else:
             # 使用原有的create_item_bubble函數創建商品氣泡
             bubble = create_item_bubble(item)
+            
+            # 添加查看購物車的按鈕
+            bubble["body"]["contents"].append({
+                "type": "button",
+                "style": "primary",
+                "height": "sm",
+                "action": {
+                    "type": "message",
+                    "label": "查看購物車",
+                    "text": "查看購物車"
+                },
+                "margin": "md"
+            })
         
         carousel_contents.append(bubble)
     
