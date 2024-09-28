@@ -99,7 +99,7 @@ def handle_message(event):
             if result:
                 reply_text = result[0]
             else:
-                if user_message.lower().strip() == "podcast" and member:
+                if user_message.lower().strip() == "podcast":
                     from notes import get_podcast_summaries
                     summaries = get_podcast_summaries()
                     if summaries:
