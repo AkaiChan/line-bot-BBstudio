@@ -99,8 +99,18 @@ def handle_message(event):
             if result:
                 reply_text = result[0]
             else:
-                # 如果沒有匹配的呼叫，使用原有的邏輯
-                if user_message == "哈囉":
+                if user_message.lower().strip() == "podcast" and member:
+                    from notes import get_podcast_summaries
+                    summaries = get_podcast_summaries()
+                    if summaries:
+                        reply_text = "Podcast Summary List:\n\n"
+                        for summary in summaries:
+                            reply_text += f"Title: {summary['title']}\n"
+                            reply_text += f"Link: {summary['link']}\n"
+                            reply_text += f"Summary: {summary['summary'][:50]}...\n\n"
+                    else:
+                        reply_text = "No podcast summaries available at the moment."
+                elif user_message == "哈囉":
                     reply_text = "你好嗎？"
                 elif "天氣" in user_message:
                     city = "台北"  # 預設城市，您可以根據需要修改
