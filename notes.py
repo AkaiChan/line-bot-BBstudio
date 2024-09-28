@@ -28,8 +28,9 @@ def get_latest_podcast_summary():
         else:
             return None
     except Exception as e:
-        print(f"Error occurred while fetching the latest podcast summary: {str(e)}")
-        return None
+        error_message = f"Error occurred while fetching the latest podcast summary:{str(e)}"
+        print(error_message)
+        return {"error": error_message}
 
 def get_podcast_summaries():
     try:
