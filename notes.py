@@ -28,8 +28,9 @@ def get_podcast_summaries():
         
         return summaries
     except Exception as e:
-        print(f"Error occurred while fetching podcast summaries: {str(e)}")
-        return []
+        error_message = f"Error occurred while fetching podcast summaries: {str(e)}"
+        print(error_message)
+        return [], [error_message]
 
 def add_podcast_summary(title, link, summary):
     try:
