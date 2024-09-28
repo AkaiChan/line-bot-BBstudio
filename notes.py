@@ -6,6 +6,22 @@ notion = Client(auth=os.environ["NOTION_API_KEY"])
 
 # PodcastSummary 数据库 ID
 PODCAST_SUMMARY_DATABASE_ID = "10f8a86cad6380f4ad74e1eab2708e77"
+def check_notion_connection():
+    try:
+        # 嘗試獲取數據庫信息
+        notion.databases.retrieve(database_id=PODCAST_SUMMARY_DATABASE_ID)
+        print("Notion 連接成功!")
+        return True
+    except Exception as e:
+        print(f"Notion 連接失敗: {str(e)}")
+        return False
+
+# 測試 Notion 連接
+if check_notion_connection():
+    print("Notion API 可以正常使用。")
+else:
+    print("請檢查你的 Notion API 密鑰和數據庫 ID 是否正確。")
+
 def get_latest_podcast_summary():
     try:
         response = notion.databases.query(
@@ -28,9 +44,8 @@ def get_latest_podcast_summary():
         else:
             return None
     except Exception as e:
-        error_message = f"Error occurred while fetching the latest podcast summary:{str(e)}"
-        print(error_message)
-        return {"error": error_message}
+        print(f"Error occurred while fetching the latest podcast summary: {str(e)}")
+        return None
 
 def get_podcast_summaries():
     try:

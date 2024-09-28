@@ -100,15 +100,18 @@ def handle_message(event):
                 reply_text = result[0]
             else:
                 if user_message.lower().strip() == "podcast":
-                    from notes import get_latest_podcast_summary
-                    latest_summary = get_latest_podcast_summary()
-                    if latest_summary:
-                        reply_text = "Latest podcast summary:\n\n"
-                        reply_text += f"Title: {latest_summary['title']}\n"
-                        reply_text += f"Link: {latest_summary['link']}\n"
-                        reply_text += f"Summary: {latest_summary['summary'][:50]}...\n"
+                    from notes import check_notion_connection, get_latest_podcast_summary
+                    if check_notion_connection():
+                        latest_summary = get_latest_podcast_summary()
+                        if latest_summary:
+                            reply_text = "最新播客摘要：\n\n"
+                            reply_text += f"標題：{latest_summary['title']}\n"
+                            reply_text += f"鏈接：{latest_summary['link']}\n"
+                            reply_text += f"摘要：{latest_summary['summary'][:50]}...\n"
+                        else:
+                            reply_text = "目前沒有可用的播客摘要。"
                     else:
-                        reply_text = "No podcast summary available at the moment."
+                        reply_text = "無法連接到Notion。請稍後再試。"
                 elif "天氣" in user_message:
                     city = "台北"  # 預設城市，您可以根據需要修改
                     reply_text = get_weather(city)
