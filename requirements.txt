@@ -8,3 +8,4 @@ matplotlib
 mplfinance
 pytz
 google-generativeai
+notion-client

@@ -110,8 +110,6 @@ def handle_message(event):
                             reply_text += f"Summary: {summary['summary'][:50]}...\n\n"
                     else:
                         reply_text = "No podcast summaries available at the moment."
-                elif user_message == "哈囉":
-                    reply_text = "你好嗎？"
                 elif "天氣" in user_message:
                     city = "台北"  # 預設城市，您可以根據需要修改
                     reply_text = get_weather(city)
