@@ -101,7 +101,8 @@ def handle_message(event):
             else:
                 if user_message.lower().strip() == "podcast":
                     from notes import check_notion_connection, get_latest_podcast_summary
-                    if check_notion_connection():
+                    connection_status = check_notion_connection()
+                    if connection_status == "Notion 連接成功!":
                         latest_summary = get_latest_podcast_summary()
                         if latest_summary:
                             reply_text = "最新播客摘要：\n\n"
@@ -111,7 +112,7 @@ def handle_message(event):
                         else:
                             reply_text = "目前沒有可用的播客摘要。"
                     else:
-                        reply_text = "無法連接到Notion。請稍後再試。"
+                        reply_text = f"無法連接到Notion。錯誤信息：{connection_status}"
                 elif "天氣" in user_message:
                     city = "台北"  # 預設城市，您可以根據需要修改
                     reply_text = get_weather(city)

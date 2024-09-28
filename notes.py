@@ -8,13 +8,17 @@ notion = Client(auth=os.environ["NOTION_API_KEY"])
 PODCAST_SUMMARY_DATABASE_ID = "10f8a86cad6380f4ad74e1eab2708e77"
 def check_notion_connection():
     try:
+        # 檢查 NOTION_API_KEY 環境變量是否存在
+        if "NOTION_API_KEY" not in os.environ:
+            return "錯誤: NOTION_API_KEY 環境變量未設置"
+        # 檢查 NOTION_API_KEY 是否為空
+        if not os.environ["NOTION_API_KEY"]:
+            return "錯誤: NOTION_API_KEY 環境變量為空"
         # 嘗試獲取數據庫信息
         notion.databases.retrieve(database_id=PODCAST_SUMMARY_DATABASE_ID)
-        print("Notion 連接成功!")
-        return True
+        return "Notion 連接成功!"
     except Exception as e:
-        print(f"Notion 連接失敗: {str(e)}")
-        return False
+        return f"Notion 連接失敗: {str(e)}"
 
 # 測試 Notion 連接
 if check_notion_connection():
