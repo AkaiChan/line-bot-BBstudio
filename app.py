@@ -17,6 +17,7 @@ import google.generativeai as genai
 import logging
 import tempfile
 import base64
+from stock import get_stock_info
 
 # 設置 Gemini API
 genai.configure(api_key=os.getenv("GOOGLE_AI_API_KEY"))
@@ -188,7 +189,7 @@ def handle_message(event):
                     return
                 elif user_message.lower().strip().startswith("stock"):
                     stock_code = user_message.split()[1]
-                    stock_info = TWStockAPI.get_stock_info(stock_code)
+                    stock_info = get_stock_info(stock_code)
                     flex_message = FlexSendMessage(alt_text=f"股票 {stock_code} 信息", contents=create_stock_flex_message(stock_info))
                     line_bot_api.reply_message(event.reply_token, flex_message) 
                     return
@@ -329,7 +330,7 @@ def handle_message(event):
                         new_store = add_store(conn, store_name, store_description)
                         conn.close()
                         reply_text = f"已成功添加新店家:\n名稱: {new_store['name']}\n描述: {store_description}\nID: {new_store['id']}"
-                        del user_states[user_id]  # 清除用戶狀態
+                        del user_states[user_id]  # 清除用戶狀��
                     elif state == "waiting_for_store_id_bulk":
                         user_states[user_id]["store_id"] = user_message
                         user_states[user_id]["state"] = "waiting_for_bulk_products"
@@ -395,7 +396,7 @@ def get_user_profile(user_id):
     try:
         return line_bot_api.get_profile(user_id)
     except LineBotApiError as e:
-        logger.error(f"獲取用戶資料失敗: {str(e)}")
+        logger.error(f"獲取用戶��料失敗: {str(e)}")
         raise
 
 def get_or_create_member(user_id, display_name):

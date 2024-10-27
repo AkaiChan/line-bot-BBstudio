@@ -801,104 +801,76 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 def create_stock_flex_message(stock_info):
-    # 計算漲跌幅
-    try:
-        change = round(float(stock_info['收盤價']) - float(stock_info['昨日收盤價']), 2)
-        change_percent = round((change / float(stock_info['昨日收盤價'])) * 100, 2)
-        change_color = "#FF0000" if change >= 0 else "#00FF00"
-    except ValueError:
-        change = 0
-        change_percent = 0
-        change_color = "#888888"
+    if stock_info is None:
+        return {
+            "type": "bubble",
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": "无法获取股票信息",
+                        "weight": "bold",
+                        "size": "xl"
+                    }
+                ]
+            }
+        }
 
-    def format_number(number, width=8):
-        return f"{float(number):>{width}.2f}"
-
-    def create_data_row(label, value, color="#111111"):
+    def create_data_row(label, value, color="#666666"):
         return {
             "type": "box",
-            "layout": "horizontal",
+            "layout": "baseline",
+            "spacing": "sm",
             "contents": [
                 {
                     "type": "text",
                     "text": label,
+                    "color": "#aaaaaa",
                     "size": "sm",
-                    "color": "#555555",
-                    "flex": 0
+                    "flex": 3
                 },
                 {
                     "type": "text",
                     "text": value,
-                    "size": "sm",
+                    "wrap": True,
                     "color": color,
-                    "align": "end",
-                    "wrap": False
+                    "size": "sm",
+                    "flex": 5
                 }
             ]
         }
 
-    bubble = {
+    contents = [
+        {
+            "type": "text",
+            "text": f"{stock_info['name']} ({stock_info['code']})",
+            "weight": "bold",
+            "size": "xl"
+        },
+        {
+            "type": "box",
+            "layout": "vertical",
+            "margin": "lg",
+            "spacing": "sm",
+            "contents": [
+                create_data_row("当前价格", f"{stock_info['current_price']:.2f}"),
+                create_data_row("涨跌幅", f"{stock_info['change']:.2f} ({stock_info['change_percent']:.2f}%)", 
+                                "#FF0000" if stock_info['change'] >= 0 else "#00FF00"),
+                create_data_row("市值", f"{stock_info['market_cap']:,}"),
+                create_data_row("PE比率", f"{stock_info['pe_ratio']:.2f}"),
+                create_data_row("Z-Score", f"{stock_info['z_score']:.2f}"),
+                create_data_row("Z2-Score", f"{stock_info['z2_score']:.2f}")
+            ]
+        }
+    ]
+
+    return {
         "type": "bubble",
         "body": {
             "type": "box",
             "layout": "vertical",
-            "contents": [
-                {
-                    "type": "text",
-                    "text": f"{stock_info['股票名稱']} ({stock_info['股票代碼']})",
-                    "weight": "bold",
-                    "size": "xl",
-                    "color": "#1DB446"
-                },
-                {
-                    "type": "text",
-                    "text": stock_info['日期'],
-                    "size": "sm",
-                    "color": "#888888"
-                },
-                {
-                    "type": "separator",
-                    "margin": "xxl"
-                },
-                {
-                    "type": "box",
-                    "layout": "horizontal",
-                    "margin": "xxl",
-                    "spacing": "sm",
-                    "contents": [
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "contents": [
-                                create_data_row("Close", format_number(stock_info['收盤價'])),
-                                create_data_row("Open", format_number(stock_info['開盤價'])),
-                                create_data_row("High", format_number(stock_info['最高價']))
-                            ],
-                            "flex": 1
-                        },
-                        {
-                            "type": "separator",
-                            "margin": "sm"
-                        },
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "contents": [
-                                create_data_row("Change", format_number(change), change_color),
-                                create_data_row("Change%", f"{change_percent:>7.2f}%", change_color),
-                                create_data_row("Low", format_number(stock_info['最低價']))
-                            ],
-                            "flex": 1
-                        }
-                    ]
-                },
-                {
-                    "type": "separator",
-                    "margin": "xxl"
-                },
-                create_data_row("Volume", f"{int(stock_info['成交股數']):,}"),
-                *([create_data_row("樂活五線譜", stock_info['happy_5_lines'])] if 'happy_5_lines' in stock_info else [])
-            ]
+            "contents": contents
         }
     }
-    return bubble
