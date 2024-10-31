@@ -11,3 +11,8 @@ mplfinance
 pytz
 google-generativeai
 notion-client
+numpy
+selenium
+lxml
+html5lib
+webdriver_manager
