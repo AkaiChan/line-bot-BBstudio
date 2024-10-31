@@ -316,67 +316,119 @@ def get_historical_price_data(str_code):
         return pd.DataFrame()
 
 def get_stock_info(str_code):
+    """
+    獲取股票資訊的函數
+    參數:
+        str_code: 股票代碼 (例如: '2330')
+    返回:
+        dict: 包含股票資訊的字典
+    """
     try:
-        # 创建 Ticker 对象
+        # 創建 Ticker 對象
         ticker = yf.Ticker(f"{str_code}.TW")
         
-        # 获取基本信息
+        # 獲取基本信息
         info = ticker.info
+        if not info:
+            raise ValueError("無法獲取股票基本信息")
+            
+        # 獲取財務數據
+        financial_data = get_financial_data(str_code)
         
-        # 获取最新的财务数据
-        balance_sheet = ticker.balance_sheet.iloc[:, 0] if not ticker.balance_sheet.empty else pd.Series()
-        income_stmt = ticker.financials.iloc[:, 0] if not ticker.financials.empty else pd.Series()
-        cash_flow = ticker.cashflow.iloc[:, 0] if not ticker.cashflow.empty else pd.Series()
+        # 計算 Z-Score
+        z_value, z2_value = calculate_z_scores(financial_data) if financial_data else (0, 0)
         
-        # 计算 Z-Score 和 Z2-Score
-        financial_data = {
-            '總資產': balance_sheet.get('Total Assets', 0),
-            '總負債': balance_sheet.get('Total Liabilities Net Minority Interest', 0),
-            '流動資產': balance_sheet.get('Current Assets', 0),
-            '保留盈餘': balance_sheet.get('Retained Earnings', 0),
-            '股東權益總額': balance_sheet.get('Stockholders Equity', 0),
-            '股本': balance_sheet.get('Common Stock', 0),
-            '普通股股本': balance_sheet.get('Common Stock', 0),
-            '稅前淨利': income_stmt.get('Pretax Income', 0),
-            '營業收入淨額': income_stmt.get('Total Revenue', 0),
-            '利息費用': cash_flow.get('Interest Expense', 0),
-        }
-        
-        z_score, z2_score = calculate_z_scores(financial_data)
-        
-        # 获取当前股价和市值
+        # 獲取當前股價和其他市場數據
         current_price = info.get('regularMarketPrice', 0)
         market_cap = info.get('marketCap', 0)
+        eps = info.get('trailingEps', 0)
         
-        # 计算 PE ratio
-        earnings_per_share = info.get('trailingEps', 0)
-        pe_ratio = current_price / earnings_per_share if earnings_per_share else 0
+        # 計算本益比
+        pe_ratio = round(current_price / eps, 2) if eps and eps != 0 else 0
         
-        return {
+        # 取得建議
+        recommendation = get_recommendation(z_value, z2_value, pe_ratio)
+        
+        result = {
+            "success": True,
             "code": str_code,
-            "name": info.get('longName', ''),
+            "name": info.get('longName', f'Stock {str_code}'),
             "current_price": current_price,
             "change": info.get('regularMarketChange', 0),
             "change_percent": info.get('regularMarketChangePercent', 0),
             "market_cap": market_cap,
             "pe_ratio": pe_ratio,
-            "z_score": z_score,
-            "z2_score": z2_score
+            "eps": eps,
+            "z_score": round(z_value, 2),
+            "z2_score": round(z2_value, 2),
+            "recommendation": recommendation,
+            "volume": info.get('volume', 0),
+            "avg_volume": info.get('averageVolume', 0),
+            "high_52week": info.get('fiftyTwoWeekHigh', 0),
+            "low_52week": info.get('fiftyTwoWeekLow', 0)
         }
+        
+        print(f"成功獲取 {str_code} 的股票資訊")
+        return result
     
     except Exception as e:
-        print(f"獲取股票信息時發生錯誤: {e}")
-        return None
+        error_msg = f"獲取股票資訊時發生錯誤: {str(e)}"
+        print(error_msg)
+        return {
+            "success": False,
+            "code": str_code,
+            "error": error_msg,
+            "name": f"Stock {str_code}",
+            "current_price": 0,
+            "change": 0,
+            "change_percent": 0,
+            "market_cap": 0,
+            "pe_ratio": 0,
+            "eps": 0,
+            "z_score": 0,
+            "z2_score": 0,
+            "recommendation": "無法取得建議",
+            "volume": 0,
+            "avg_volume": 0,
+            "high_52week": 0,
+            "low_52week": 0
+        }
 
+def get_recommendation(z_value, z2_value, pe_ratio):
+    """
+    根據 Z-Score、Z2-Score 和本益比給出建議
+    """
+    try:
+        if z_value == 0 or z2_value == 0:
+            return "無足夠數據提供建議"
+            
+        # Z-Score 分析
+        if z_value > 2.99:
+            z_suggestion = "財務狀況良好"
+        elif z_value < 1.81:
+            z_suggestion = "財務狀況需注意"
+        else:
+            z_suggestion = "財務狀況中等"
+            
+        # PE ratio 分析
+        if pe_ratio == 0:
+            pe_suggestion = "無法計算本益比"
+        elif pe_ratio > 30:
+            pe_suggestion = "本益比偏高"
+        elif pe_ratio < 10:
+            pe_suggestion = "本益比偏低"
+        else:
+            pe_suggestion = "本益比適中"
+            
+        return f"{z_suggestion}，{pe_suggestion}"
+        
+    except Exception as e:
+        print(f"生成建議時發生錯誤: {str(e)}")
+        return "無法生成建議"
+
+# 測試用的主程式
 if __name__ == "__main__":
-    test_company("2330")
-    #result_json = main_fun()
-    #print(result_json)
-
-    # 使用示例
-    for stock_code in ["2330", "2345"]:
-        print(f"\n获取 {stock_code} 的财务数据:")
-        financial_data = get_financial_data(stock_code)
-        print(f"{stock_code} 的股本: {financial_data.get('股本', 0)}")
-        print(f"{stock_code} 的股票总市值: {financial_data.get('股票總市值', 0)}")
+    test_code = "2330"
+    result = get_stock_info(test_code)
+    print(json.dumps(result, ensure_ascii=False, indent=2))
 

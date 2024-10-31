@@ -188,10 +188,30 @@ def handle_message(event):
                     line_bot_api.reply_message(event.reply_token, flex_message)
                     return
                 elif user_message.lower().strip().startswith("stock"):
-                    stock_code = user_message.split()[1]
-                    stock_info = get_stock_info(stock_code)
-                    flex_message = FlexSendMessage(alt_text=f"股票 {stock_code} 信息", contents=create_stock_flex_message(stock_info))
-                    line_bot_api.reply_message(event.reply_token, flex_message) 
+                    try:
+                        stock_code = user_message.split()[1]
+                        stock_info = get_stock_info(stock_code)
+                        
+                        if stock_info["success"]:
+                            # 使用 Flex Message 來顯示股票資訊
+                            flex_message = FlexSendMessage(
+                                alt_text=f"股票 {stock_code} 資訊",
+                                contents=create_stock_flex_message(stock_info)
+                            )
+                            line_bot_api.reply_message(event.reply_token, flex_message)
+                        else:
+                            # 如果獲取資訊失敗，發送錯誤訊息
+                            reply_text = f"錯誤: {stock_info['error']}"
+                            line_bot_api.reply_message(
+                                event.reply_token,
+                                TextSendMessage(text=reply_text)
+                            )
+                    except Exception as e:
+                        reply_text = f"處理股票資訊時發生錯誤: {str(e)}"
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            TextSendMessage(text=reply_text)
+                        )
                     return
                 elif user_message.startswith("chart"):
                     stock_code = user_message.split()[1]
