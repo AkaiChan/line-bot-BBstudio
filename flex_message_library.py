@@ -810,7 +810,7 @@ def create_stock_flex_message(stock_info):
                 "contents": [
                     {
                         "type": "text",
-                        "text": "无法获取股票信息",
+                        "text": "Unable to retrieve stock information",
                         "weight": "bold",
                         "size": "xl"
                     }
@@ -855,11 +855,11 @@ def create_stock_flex_message(stock_info):
             "margin": "lg",
             "spacing": "sm",
             "contents": [
-                create_data_row("当前价格", f"{stock_info['current_price']:.2f}"),
-                create_data_row("涨跌幅", f"{stock_info['change']:.2f} ({stock_info['change_percent']:.2f}%)", 
+                create_data_row("Current Price", f"{stock_info['current_price']:.2f}"),
+                create_data_row("Change", f"{stock_info['change']:.2f} ({stock_info['change_percent']:.2f}%)", 
                                 "#FF0000" if stock_info['change'] >= 0 else "#00FF00"),
-                create_data_row("市值", f"{stock_info['market_cap']:,}"),
-                create_data_row("PE比率", f"{stock_info['pe_ratio']:.2f}"),
+                create_data_row("Market Cap", f"{stock_info['market_cap']:,}"),
+                create_data_row("P/E Ratio", f"{stock_info['pe_ratio']:.2f}"),
                 create_data_row("Z-Score", f"{stock_info['z_score']:.2f}"),
                 create_data_row("Z2-Score", f"{stock_info['z2_score']:.2f}")
             ]
