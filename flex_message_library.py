@@ -802,7 +802,7 @@ logger = logging.getLogger(__name__)
 
 def create_stock_flex_message(stock_info):
     """
-    創建股票資訊的 Flex Message
+    創建股票資訊的 Flex Message，包含 PE ratio 和 Z-Score
     """
     return {
         "type": "bubble",
@@ -865,20 +865,21 @@ def create_stock_flex_message(stock_info):
                                 }
                             ]
                         },
+                        # 添加 PE ratio
                         {
                             "type": "box",
                             "layout": "horizontal",
                             "contents": [
                                 {
                                     "type": "text",
-                                    "text": "最高",
+                                    "text": "本益比",
                                     "size": "sm",
                                     "color": "#555555",
                                     "flex": 1
                                 },
                                 {
                                     "type": "text",
-                                    "text": f"{stock_info['high_price']}",
+                                    "text": f"{stock_info.get('pe_ratio', 'N/A')}",
                                     "size": "sm",
                                     "color": "#111111",
                                     "align": "end",
@@ -886,20 +887,43 @@ def create_stock_flex_message(stock_info):
                                 }
                             ]
                         },
+                        # 添加 Z-Score
                         {
                             "type": "box",
                             "layout": "horizontal",
                             "contents": [
                                 {
                                     "type": "text",
-                                    "text": "最低",
+                                    "text": "Z-Score",
                                     "size": "sm",
                                     "color": "#555555",
                                     "flex": 1
                                 },
                                 {
                                     "type": "text",
-                                    "text": f"{stock_info['low_price']}",
+                                    "text": f"{stock_info.get('z_score', 'N/A')}",
+                                    "size": "sm",
+                                    "color": "#111111",
+                                    "align": "end",
+                                    "flex": 2
+                                }
+                            ]
+                        },
+                        # 添加 Z2-Score
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "Z2-Score",
+                                    "size": "sm",
+                                    "color": "#555555",
+                                    "flex": 1
+                                },
+                                {
+                                    "type": "text",
+                                    "text": f"{stock_info.get('z2_score', 'N/A')}",
                                     "size": "sm",
                                     "color": "#111111",
                                     "align": "end",
