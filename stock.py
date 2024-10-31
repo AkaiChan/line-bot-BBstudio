@@ -317,55 +317,48 @@ def get_historical_price_data(str_code):
 
 def get_stock_info(str_code):
     """
-    獲取股票資訊的函數
+    獲取台股資訊的函數
     參數:
         str_code: 股票代碼 (例如: '2330')
     返回:
         dict: 包含股票資訊的字典
     """
     try:
-        # 創建 Ticker 對象
-        ticker = yf.Ticker(f"{str_code}.TW")
+        # 使用台灣證交所 API
+        url = f"https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=tse_{str_code}.tw"
+        response = requests.get(url)
+        data = response.json()
+
+        if 'msgArray' not in data or not data['msgArray']:
+            raise ValueError("無法獲取股票資訊")
+
+        stock_data = data['msgArray'][0]
         
-        # 獲取基本信息
-        info = ticker.info
-        if not info:
-            raise ValueError("無法獲取股票基本信息")
-            
-        # 獲取財務數據
-        financial_data = get_financial_data(str_code)
+        # 獲取即時股價資訊
+        current_price = float(stock_data.get('z', '0'))  # 最新成交價
+        previous_price = float(stock_data.get('y', '0'))  # 昨收價
+        change = round(current_price - previous_price, 2)
+        change_percent = round((change / previous_price) * 100, 2) if previous_price else 0
         
-        # 計算 Z-Score
-        z_value, z2_value = calculate_z_scores(financial_data) if financial_data else (0, 0)
+        # 獲取其他基本資訊
+        volume = int(stock_data.get('v', '0'))  # 成交量
+        high_price = float(stock_data.get('h', '0'))  # 最高價
+        low_price = float(stock_data.get('l', '0'))  # 最低價
         
-        # 獲取當前股價和其他市場數據
-        current_price = info.get('regularMarketPrice', 0)
-        market_cap = info.get('marketCap', 0)
-        eps = info.get('trailingEps', 0)
-        
-        # 計算本益比
-        pe_ratio = round(current_price / eps, 2) if eps and eps != 0 else 0
-        
-        # 取得建議
-        recommendation = get_recommendation(z_value, z2_value, pe_ratio)
-        
+        # 整合資訊
         result = {
             "success": True,
             "code": str_code,
-            "name": info.get('longName', f'Stock {str_code}'),
+            "name": stock_data.get('n', f'Stock {str_code}'),  # 股票名稱
             "current_price": current_price,
-            "change": info.get('regularMarketChange', 0),
-            "change_percent": info.get('regularMarketChangePercent', 0),
-            "market_cap": market_cap,
-            "pe_ratio": pe_ratio,
-            "eps": eps,
-            "z_score": round(z_value, 2),
-            "z2_score": round(z2_value, 2),
-            "recommendation": recommendation,
-            "volume": info.get('volume', 0),
-            "avg_volume": info.get('averageVolume', 0),
-            "high_52week": info.get('fiftyTwoWeekHigh', 0),
-            "low_52week": info.get('fiftyTwoWeekLow', 0)
+            "change": change,
+            "change_percent": change_percent,
+            "volume": volume,
+            "high_price": high_price,
+            "low_price": low_price,
+            "previous_price": previous_price,
+            "time": stock_data.get('t', ''),  # 交易時間
+            "recommendation": get_simple_recommendation(change_percent)
         }
         
         print(f"成功獲取 {str_code} 的股票資訊")
@@ -382,49 +375,24 @@ def get_stock_info(str_code):
             "current_price": 0,
             "change": 0,
             "change_percent": 0,
-            "market_cap": 0,
-            "pe_ratio": 0,
-            "eps": 0,
-            "z_score": 0,
-            "z2_score": 0,
-            "recommendation": "無法取得建議",
             "volume": 0,
-            "avg_volume": 0,
-            "high_52week": 0,
-            "low_52week": 0
+            "high_price": 0,
+            "low_price": 0,
+            "previous_price": 0,
+            "time": "",
+            "recommendation": "無法取得建議"
         }
 
-def get_recommendation(z_value, z2_value, pe_ratio):
+def get_simple_recommendation(change_percent):
     """
-    根據 Z-Score、Z2-Score 和本益比給出建議
+    根據漲跌幅給出簡單建議
     """
-    try:
-        if z_value == 0 or z2_value == 0:
-            return "無足夠數據提供建議"
-            
-        # Z-Score 分析
-        if z_value > 2.99:
-            z_suggestion = "財務狀況良好"
-        elif z_value < 1.81:
-            z_suggestion = "財務狀況需注意"
-        else:
-            z_suggestion = "財務狀況中等"
-            
-        # PE ratio 分析
-        if pe_ratio == 0:
-            pe_suggestion = "無法計算本益比"
-        elif pe_ratio > 30:
-            pe_suggestion = "本益比偏高"
-        elif pe_ratio < 10:
-            pe_suggestion = "本益比偏低"
-        else:
-            pe_suggestion = "本益比適中"
-            
-        return f"{z_suggestion}，{pe_suggestion}"
-        
-    except Exception as e:
-        print(f"生成建議時發生錯誤: {str(e)}")
-        return "無法生成建議"
+    if change_percent > 3:
+        return "短線獲利了結"
+    elif change_percent < -3:
+        return "可考慮逢低承接"
+    else:
+        return "觀望為主"
 
 # 測試用的主程式
 if __name__ == "__main__":
