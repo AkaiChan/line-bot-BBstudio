@@ -801,76 +801,179 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 def create_stock_flex_message(stock_info):
-    if stock_info is None:
-        return {
-            "type": "bubble",
-            "body": {
-                "type": "box",
-                "layout": "vertical",
-                "contents": [
-                    {
-                        "type": "text",
-                        "text": "Unable to retrieve stock information",
-                        "weight": "bold",
-                        "size": "xl"
-                    }
-                ]
-            }
-        }
-
-    def create_data_row(label, value, color="#666666"):
-        return {
-            "type": "box",
-            "layout": "baseline",
-            "spacing": "sm",
-            "contents": [
-                {
-                    "type": "text",
-                    "text": label,
-                    "color": "#aaaaaa",
-                    "size": "sm",
-                    "flex": 3
-                },
-                {
-                    "type": "text",
-                    "text": value,
-                    "wrap": True,
-                    "color": color,
-                    "size": "sm",
-                    "flex": 5
-                }
-            ]
-        }
-
-    contents = [
-        {
-            "type": "text",
-            "text": f"{stock_info['name']} ({stock_info['code']})",
-            "weight": "bold",
-            "size": "xl"
-        },
-        {
-            "type": "box",
-            "layout": "vertical",
-            "margin": "lg",
-            "spacing": "sm",
-            "contents": [
-                create_data_row("Current Price", f"{stock_info['current_price']:.2f}"),
-                create_data_row("Change", f"{stock_info['change']:.2f} ({stock_info['change_percent']:.2f}%)", 
-                                "#FF0000" if stock_info['change'] >= 0 else "#00FF00"),
-                create_data_row("Market Cap", f"{stock_info['market_cap']:,}"),
-                create_data_row("P/E Ratio", f"{stock_info['pe_ratio']:.2f}"),
-                create_data_row("Z-Score", f"{stock_info['z_score']:.2f}"),
-                create_data_row("Z2-Score", f"{stock_info['z2_score']:.2f}")
-            ]
-        }
-    ]
-
+    """
+    創建股票資訊的 Flex Message
+    """
     return {
         "type": "bubble",
         "body": {
             "type": "box",
             "layout": "vertical",
-            "contents": contents
+            "contents": [
+                {
+                    "type": "text",
+                    "text": f"{stock_info['name']} ({stock_info['code']})",
+                    "weight": "bold",
+                    "size": "xl",
+                    "color": "#1DB446"
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "margin": "lg",
+                    "spacing": "sm",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "現價",
+                                    "size": "sm",
+                                    "color": "#555555",
+                                    "flex": 1
+                                },
+                                {
+                                    "type": "text",
+                                    "text": f"{stock_info['current_price']}",
+                                    "size": "sm",
+                                    "color": "#111111",
+                                    "align": "end",
+                                    "flex": 2
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "漲跌",
+                                    "size": "sm",
+                                    "color": "#555555",
+                                    "flex": 1
+                                },
+                                {
+                                    "type": "text",
+                                    "text": f"{stock_info['change']} ({stock_info['change_percent']}%)",
+                                    "size": "sm",
+                                    "color": f"{'#FF0000' if stock_info['change'] > 0 else '#00FF00' if stock_info['change'] < 0 else '#111111'}",
+                                    "align": "end",
+                                    "flex": 2
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "最高",
+                                    "size": "sm",
+                                    "color": "#555555",
+                                    "flex": 1
+                                },
+                                {
+                                    "type": "text",
+                                    "text": f"{stock_info['high_price']}",
+                                    "size": "sm",
+                                    "color": "#111111",
+                                    "align": "end",
+                                    "flex": 2
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "最低",
+                                    "size": "sm",
+                                    "color": "#555555",
+                                    "flex": 1
+                                },
+                                {
+                                    "type": "text",
+                                    "text": f"{stock_info['low_price']}",
+                                    "size": "sm",
+                                    "color": "#111111",
+                                    "align": "end",
+                                    "flex": 2
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "成交量",
+                                    "size": "sm",
+                                    "color": "#555555",
+                                    "flex": 1
+                                },
+                                {
+                                    "type": "text",
+                                    "text": f"{stock_info['volume']}",
+                                    "size": "sm",
+                                    "color": "#111111",
+                                    "align": "end",
+                                    "flex": 2
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "margin": "xxl",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": "建議",
+                            "size": "sm",
+                            "color": "#555555",
+                            "flex": 1
+                        },
+                        {
+                            "type": "text",
+                            "text": stock_info['recommendation'],
+                            "size": "sm",
+                            "color": "#111111",
+                            "align": "end",
+                            "flex": 2
+                        }
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "margin": "md",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": "更新時間",
+                            "size": "xs",
+                            "color": "#aaaaaa",
+                            "flex": 1
+                        },
+                        {
+                            "type": "text",
+                            "text": stock_info['time'],
+                            "size": "xs",
+                            "color": "#aaaaaa",
+                            "align": "end",
+                            "flex": 2
+                        }
+                    ]
+                }
+            ]
         }
     }
